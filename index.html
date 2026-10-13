@@ -1635,7 +1635,51 @@
     function addTempHp(id) { const c = state.combatants.find(x => x.id === id); const v = parseInt(document.getElementById(`val-${id}`).value)||0; if(v>0){ c.tempHp = v; c.history.unshift(`+${v} Temp`); saveState(); renderInitiativeTab(); } }
     function toggleCondition(cid, condId) { const c = state.combatants.find(x => x.id === cid); if(!c) return; if(!c.conditions) c.conditions=[]; const idx = c.conditions.indexOf(condId); if(idx>-1) c.conditions.splice(idx,1); else c.conditions.push(condId); saveState(); renderInitiativeTab(); }
     function resetAllLogs() { state.combatants.forEach(c => c.history = []); saveState(); renderInitiativeTab(); }
-    function handleImageUpload(id, input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const c = state.combatants.find(x => x.id === id); if(c){ c.img = e.target.result; saveState(); renderInitiativeTab(); } }; reader.readAsDataURL(input.files[0]); } }
+    function handleImageUpload(id, input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 150;
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Proportionale Skalierung auf max 150x150 Pixel
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Als komprimiertes JPEG (80% Qualität) speichern
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                    const c = state.combatants.find(x => x.id === id);
+                    if (c) {
+                        c.img = compressedDataUrl;
+                        saveState();
+                        renderInitiativeTab();
+                        showToast("Bild komprimiert & gespeichert!", "success");
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
     function updateName(id, val) { const c = state.combatants.find(x => x.id === id); if(c){ c.name = val; saveState(); } }
     function resetTracker() { if(confirm('Alles löschen?')){ state.combatants = []; state.activeId = null; saveState(); renderInitiativeTab(); } }
 
