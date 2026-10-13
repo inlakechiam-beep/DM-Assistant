@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sylvanus Spielleiter-Codex</title>
+
+    <!-- Google Fonts: Cinzel for Headings & Inter for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        forest: {
+                            50: '#f1f8f4',
+                            100: '#dfefe6',
+                            200: '#c1ded0',
+                            300: '#97c7b2',
+                            400: '#69a890',
+                            500: '#468c75',
+                            600: '#34705d',
+                            700: '#2a594b',
+                            800: '#23483d',
+                            900: '#1d3d34',
+                            950: '#0b1814',
+                        },
+                        gold: {
+                            300: '#f5e4a2',
+                            400: '#eacb67',
+                            500: '#d4af37',
+                            600: '#aa8822',
+                            700: '#806315',
+                        },
+                        parchment: {
+                            50: '#fcfaf5',
+                            100: '#f6f1e5',
+                            200: '#ede2cd',
+                            300: '#dfceab',
+                            800: '#423722',
+                            900: '#2d2415',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-card: #13251e;
+            --bg-card-active: #1c382e;
+            --bg-input: #0b1814;
+            --border-subtle: rgba(212, 175, 55, 0.25);
+            --text-main: #f1f8f4;
+            --text-muted: #97c7b2;
+            --accent-gold: #d4af37;
+            --accent-gold-glow: rgba(212, 175, 55, 0.3);
+            --square-size: 110px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .font-cinzel { font-family: 'Cinzel', serif; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 24, 20, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
+
+        .dark ::-webkit-scrollbar-track { background: rgba(11, 24, 20, 0.6); }
+        .dark .forest-pattern {
+            background-color: #0b1814;
+            background-image: radial-gradient(#1d3d34 0.8px, transparent 0.8px);
+            background-size: 20px 20px;
+        }
+
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .draggable-item:active { cursor: grabbing; }
+        .draggable-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+        .drag-over {
+            border: 2px dashed var(--accent-gold) !important;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Initiative Tracker Scoped Styles */
+        .init-tracker-container { width: 100%; }
+        .init-header {
+            width: 100%; background: #1d3d34; border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .init-header-title { font-size: 1.1rem; font-weight: 800; color: #eacb67; display: flex; align-items: center; gap: 8px; }
+        .init-header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        .init-tracker-container button {
+            background: #23483d; color: var(--text-main); border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .init-tracker-container button:hover { background: #34705d; border-color: #d4af37; }
+        .init-tracker-container button.btn-primary { background: #d4af37; border-color: #d4af37; color: #0b1814; font-weight: 800; }
+        .init-tracker-container button.btn-primary:hover { background: #eacb67; }
+        .init-tracker-container button.btn-danger-subtle { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .init-tracker-container button.btn-danger-subtle:hover { background: rgba(239, 68, 68, 0.3); border-color: #ef4444; color: #ffffff; }
+
+        .size-picker {
+            display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted);
+            background: var(--bg-input); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-subtle);
+        }
+        .size-picker input { width: 60px; accent-color: var(--accent-gold); cursor: pointer; }
+
+        #tracker-list { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+
+        .combatant-card {
+            background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px;
+            padding: 12px 14px; display: flex; flex-direction: row; align-items: center; gap: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            position: relative; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); cursor: pointer;
+        }
+        .combatant-card:hover { border-color: #34705d; }
+        .combatant-card.is-active { border-color: var(--accent-gold); background: var(--bg-card-active); box-shadow: 0 0 18px var(--accent-gold-glow); }
+        .combatant-card.is-active::before {
+            content: 'AM ZUG'; position: absolute; top: -9px; right: 20px; background: var(--accent-gold);
+            color: #0b1814; font-size: 0.62rem; font-weight: 900; padding: 2px 8px; border-radius: 4px; letter-spacing: 1px;
+        }
+
+        .init-badge {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 6px 4px; min-width: 52px;
+        }
+        .init-badge label { font-size: 0.6rem; font-weight: 800; color: var(--accent-gold); letter-spacing: 0.5px; }
+        .init-badge input { width: 40px; background: transparent; border: none; color: var(--text-main); font-size: 1.15rem; font-weight: bold; text-align: center; }
+
+        .character-square-container { display: flex; flex-direction: column; align-items: center; gap: 6px; user-select: none; border-right: 1px solid var(--border-subtle); padding-right: 14px; }
+        .character-square {
+            width: var(--square-size); height: var(--square-size); background: var(--bg-input);
+            border: 1px dashed var(--border-subtle); border-radius: 10px; position: relative; overflow: hidden;
+            display: flex; justify-content: center; align-items: center; transition: width 0.2s, height 0.2s, border-color 0.2s;
+        }
+        .character-square:hover { border-color: var(--accent-gold); }
+        .character-square img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-hint {
+            position: absolute; inset: 0; background: rgba(11, 24, 20, 0.8); color: var(--text-main);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 0.68rem; opacity: 0; transition: opacity 0.2s; text-align: center; padding: 4px;
+        }
+        .character-square:hover .upload-hint, .character-square.empty .upload-hint { opacity: 1; }
+        .character-square input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+        .name-input {
+            width: var(--square-size); background: transparent; border: none; border-bottom: 2px solid transparent;
+            color: var(--text-main); font-weight: 700; text-align: center; font-size: 0.85rem; padding: 2px; transition: border-color 0.2s;
+        }
+        .name-input:focus { outline: none; border-bottom-color: var(--accent-gold); }
+
+        .hp-section { display: flex; flex-direction: column; gap: 6px; width: 230px; max-width: 230px; flex-shrink: 0; border-right: 1px solid var(--border-subtle); padding-right: 14px; }
+        .hp-stats { display: flex; align-items: center; gap: 6px; font-weight: bold; flex-wrap: wrap; }
+        .hp-display { font-size: 1rem; color: #22c55e; display: flex; align-items: center; gap: 4px; }
+        .hp-number-input, .max-hp-input { width: 46px; background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 3px; border-radius: 6px; text-align: center; font-size: 0.9rem; font-weight: bold; }
+        .hp-number-input { color: #22c55e; }
+        .max-hp-input { color: var(--text-main); }
+        .btn-full-hp { padding: 3px 6px; font-size: 0.68rem; background: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-full-hp:hover { background: var(--accent-gold); color: #0b1814; border-color: var(--accent-gold); }
+
+        .hp-inputs { display: flex; gap: 4px; }
+        .hp-inputs input[type="number"] { width: 50px; background: var(--bg-input); border: 1px solid var(--border-subtle); color: var(--text-main); padding: 4px; border-radius: 6px; text-align: center; font-size: 0.82rem; }
+        .hp-buttons { display: flex; gap: 3px; }
+        .hp-buttons button { padding: 4px 6px; font-size: 0.7rem; border: 1px solid transparent; }
+        .btn-dmg { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+        .btn-dmg:hover { background: #ef4444; color: #fff; }
+        .btn-heal { background: rgba(34, 197, 94, 0.15); color: #86efac; border-color: rgba(34, 197, 94, 0.3); }
+        .btn-heal:hover { background: #22c55e; color: #fff; }
+        .btn-temp { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.3); }
+        .btn-temp:hover { background: #a855f7; color: #fff; }
+
+        .history-container { display: flex; flex-direction: column; gap: 3px; }
+        .history-header { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+        .history-box { background: var(--bg-input); border-radius: 6px; padding: 4px 6px; height: 42px; max-height: 42px; overflow-y: auto; font-size: 0.7rem; color: var(--text-muted); border: 1px solid var(--border-subtle); }
+        .history-entry { margin-bottom: 2px; white-space: nowrap; }
+
+        .conditions-section { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 220px; }
+        .conditions-header { font-size: 0.62rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; }
+        .conditions-grid { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
+        .condition-btn {
+            background: var(--bg-input); border: 1px solid var(--border-subtle); color: #97c7b2;
+            padding: 3px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; user-select: none; white-space: nowrap;
+        }
+        .condition-btn:hover { background: #23483d; color: var(--text-main); border-color: #34705d; }
+        .condition-btn.active {
+            background: var(--cond-color); color: var(--cond-text, #ffffff); border-color: var(--cond-color); font-weight: 700; box-shadow: 0 0 8px var(--cond-color); transform: scale(1.02);
+        }
+
+        .card-actions button { padding: 5px 8px; font-size: 0.85rem; background: transparent; border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 6px; }
+        .card-actions button:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+        .name-selection-item {
+            background: rgba(11, 24, 20, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .name-selection-item:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(29, 61, 52, 0.4);
+        }
+        .name-selection-item.selected {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.12);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
+        }
+        .name-radio-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            margin-right: 10px;
+            display: inline-block;
+            transition: all 0.15s ease;
+        }
+        .name-selection-item.selected .name-radio-dot {
+            background: #d4af37;
+            border-color: #d4af37;
+            box-shadow: 0 0 6px #d4af37;
+        }
+
+        @media (max-width: 1024px) {
+            .combatant-card { flex-wrap: wrap; }
+            .character-square-container { border-right: none; padding-right: 0; }
+            .hp-section { border-right: none; border-bottom: 1px solid var(--border-subtle); padding-right: 0; padding-bottom: 10px; width: 100%; max-width: 100%; }
+            .conditions-section { width: 100%; }
+        }
+    </style>
+</head>
+<body class="forest-pattern dark:bg-forest-950 dark:text-gray-100 bg-parchment-100 text-parchment-900 min-h-screen flex flex-col selection:bg-gold-500 selection:text-forest-950">
+
+<!-- Header / Navigation Bar -->
+<header class="sticky top-0 z-40 bg-forest-900/90 dark:bg-forest-950/95 border-b border-gold-500/30 backdrop-blur-md shadow-lg transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-gold-500/10 border border-gold-500/40 flex items-center justify-center text-gold-400 shadow-inner">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-cinzel text-lg sm:text-xl font-bold tracking-wider text-gold-400">Sylvanus</h1>
+                <p class="text-[10px] text-gray-300 dark:text-forest-300 font-medium tracking-widest uppercase">Spielleiter-Codex</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button onclick="exportData()" title="Backup herunterladen" class="p-2 rounded-lg border border-gold-500/30 bg-forest-800/50 hover:bg-forest-700 text-gold-400 hover:text-gold-300 transition-all flex items-center space-x-1 text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <span class="hidden md:inline">Export</span>
+            </button>
+            <label title="Backup einlesen" class="p-2 rounded-lg border border-gold-500/30 bg-forest-800/50 hover:bg-forest-700 text-gold-400 hover:text-gold-300 transition-all flex items-center space-x-1 text-xs cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span class="hidden md:inline">Import</span>
+                <input type="file" id="importFile" accept=".json" onchange="importData(event)" class="hidden">
+            </label>
+            <button id="themeToggleBtn" title="Design umschalten" class="p-2 rounded-lg border border-gold-500/30 bg-forest-800/50 hover:bg-forest-700 text-gold-400 hover:text-gold-300 transition-all flex items-center space-x-1 text-xs">
+                <svg id="sunIcon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="moonIcon" class="w-4 h-4 block dark:hidden text-parchment-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+            <button id="resetDataBtn" title="Alles zurücksetzen" class="p-2 rounded-lg border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 text-red-300 transition-all flex items-center space-x-1 text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-forest-950/80 border-t border-forest-800/80 px-2 sm:px-6 overflow-x-auto">
+        <div class="max-w-7xl mx-auto flex space-x-1 sm:space-x-2 py-2 min-w-max" id="navTabsContainer">
+            <button data-tab="auftakt" class="nav-tab active-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Auftakt & Rückblick</button>
+            <button data-tab="geheimnisse" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Geheimnisse</button>
+            <button data-tab="namensgen" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Namensgenerator</button>
+            <button data-tab="rollendeck" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">NPCs</button>
+            <button data-tab="monster" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Monster & Kampf</button>
+            <button data-tab="knoten" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Knoten-Ablaufplan</button>
+            <button data-tab="initiative" class="nav-tab px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-all flex items-center space-x-2">Initiative</button>
+        </div>
+    </nav>
+</header>
+
+<div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+<main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- TAB 1: AUFTAKT -->
+    <section id="tab-auftakt" class="tab-content block space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-forest-900/60 dark:bg-forest-900/80 bg-white border border-forest-700/40 rounded-xl p-5 shadow-md">
+                <div class="flex items-center justify-between mb-4 border-b border-gold-500/20 pb-3">
+                    <h2 class="font-cinzel text-lg font-bold text-gold-400">Sitzungs-Auftakt (Der Hook)</h2>
+                </div>
+                <textarea id="sessionHookInput" rows="5" class="w-full bg-forest-950/70 border border-forest-700/50 rounded-lg p-3 text-sm text-gray-100 focus:ring-2 focus:ring-gold-500" placeholder="Einstieg für heute..."></textarea>
+            </div>
+            <div class="bg-forest-900/60 dark:bg-forest-900/80 bg-white border border-forest-700/40 rounded-xl p-5 shadow-md">
+                <div class="flex items-center justify-between mb-4 border-b border-gold-500/20 pb-3">
+                    <h2 class="font-cinzel text-lg font-bold text-gold-400">Meilensteine</h2>
+                    <button id="addChecklistItemBtn" class="p-1 rounded bg-gold-500/20 text-gold-400 text-xs px-2">+ Neu</button>
+                </div>
+                <div id="checklistItemsContainer" class="space-y-2.5"></div>
+            </div>
+        </div>
+        <div class="bg-forest-900/60 dark:bg-forest-900/80 bg-white border border-forest-700/40 rounded-xl p-5 shadow-md">
+            <div class="flex items-center justify-between mb-4 border-b border-gold-500/20 pb-3">
+                <h2 class="font-cinzel text-lg font-bold text-gold-400">Rückblick</h2>
+                <button id="addRecapItemBtn" class="px-3 py-1.5 rounded-lg bg-gold-500/20 text-gold-400 text-xs">+ Stichpunkt</button>
+            </div>
+            <div id="recapListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+    </section>
+
+    <!-- TAB 2: GEHEIMNISSE -->
+    <section id="tab-geheimnisse" class="tab-content hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-forest-900/60 p-4 rounded-xl border border-forest-700/40">
+            <h2 class="font-cinzel text-xl font-bold text-gold-400">Geheimnisse & Hinweise</h2>
+            <div class="flex items-center space-x-2">
+                <button id="addSecretBtn" class="px-3 py-1.5 rounded-lg bg-gold-500 text-forest-950 font-semibold text-xs">Neues Geheimnis</button>
+            </div>
+        </div>
+        <div id="secretsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- TAB 3: NAMENSGENERATOR -->
+    <section id="tab-namensgen" class="tab-content hidden space-y-5">
+        <div class="bg-[#0b1b16] border border-[#1d3d34] rounded-2xl p-6 shadow-2xl space-y-6">
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gold-500/20 pb-4">
+                <div>
+                    <h2 class="font-cinzel text-2xl font-bold text-[#eacb67] tracking-wider">SYLVANUS NAMENSSCHMIEDE</h2>
+                    <p class="text-xs text-gray-300 mt-1">Klicke jeweils auf einen Vorname & Nachname, um sie frei zu kombinieren.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">VOLK</label>
+                        <select id="nameGenRaceSelect" class="bg-[#081310] text-[#eacb67] border border-[#22483d] text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none focus:border-gold-500">
+                            <option value="mensch">Mensch</option>
+                            <option value="elf">Elf</option>
+                            <option value="tiefling">Tiefling</option>
+                            <option value="zwerg">Zwerg</option>
+                            <option value="gnom">Gnom</option>
+                            <option value="ork">Ork</option>
+                            <option value="halbling">Halbling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">GESCHLECHT</label>
+                        <select id="nameGenGenderSelect" class="bg-[#081310] text-[#eacb67] border border-[#22483d] text-xs font-semibold rounded-lg px-4 py-2 focus:outline-none focus:border-gold-500">
+                            <option value="maennlich">Männlich</option>
+                            <option value="weiblich">Weiblich</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-[#071310] border border-[#1f4236] rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-inner">
+                <div>
+                    <div class="text-[10px] font-bold text-[#eacb67] tracking-widest uppercase mb-1">AUSGEWÄHLTER VOLLER NAME</div>
+                    <div id="fullGeneratedNameDisplay" class="font-cinzel text-2xl font-bold text-white tracking-wide">...</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyActiveGeneratedName()" class="px-4 py-2 bg-[#1b382e] hover:bg-[#284d40] border border-gold-500/30 text-gray-200 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all">
+                        📋 Kopieren
+                    </button>
+                    <button onclick="transferNameToNPC()" class="px-4 py-2 bg-[#d4af37] hover:bg-[#eacb67] text-[#0b1814] text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shadow-md">
+                        👤+ Als NPC anlegen
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-[#071511] border border-[#1a382d] rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#1a382d] pb-2">
+                        <h3 class="font-cinzel text-sm font-bold text-[#eacb67] tracking-wide">VORNAMEN</h3>
+                        <button onclick="generateNewFirstNames()" class="px-3 py-1 bg-[#18362b] hover:bg-[#254d3e] border border-gold-500/30 text-[#eacb67] text-xs font-semibold rounded-md flex items-center gap-1 transition-all">
+                            🔄 Neu
+                        </button>
+                    </div>
+                    <div id="vornamenListContainer" class="space-y-2"></div>
+                </div>
+
+                <div class="bg-[#071511] border border-[#1a382d] rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b border-[#1a382d] pb-2">
+                        <h3 class="font-cinzel text-sm font-bold text-[#eacb67] tracking-wide">NACHNAMEN & SIPPEN</h3>
+                        <button onclick="generateNewLastNames()" class="px-3 py-1 bg-[#18362b] hover:bg-[#254d3e] border border-gold-500/30 text-[#eacb67] text-xs font-semibold rounded-md flex items-center gap-1 transition-all">
+                            🔄 Neu
+                        </button>
+                    </div>
+                    <div id="nachnamenListContainer" class="space-y-2"></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- TAB 4: NPCS -->
+    <section id="tab-rollendeck" class="tab-content hidden space-y-6">
+        <div class="flex justify-between items-center bg-forest-900/60 p-4 rounded-xl border border-forest-700/40 gap-4 flex-wrap">
+            <input id="npcSearchInput" type="text" placeholder="NPC suchen..." class="bg-forest-950 text-xs rounded-lg px-3 py-2 border border-forest-700 text-gray-200 w-64">
+            <button id="openNewNpcModalBtn" class="px-4 py-2 bg-gold-500 text-forest-950 font-semibold text-xs rounded-lg">+ Neuer NPC</button>
+        </div>
+        <div id="npcCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- TAB 5: MONSTER & KAMPF -->
+    <section id="tab-monster" class="tab-content hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-forest-900/60 p-4 rounded-xl border border-forest-700/40">
+            <div>
+                <h2 class="font-cinzel text-xl font-bold text-gold-400">Monster & Kampf (Aktiv & Bibliothek)</h2>
+                <p class="text-xs text-gray-400">Ordne Kreaturen per Drag & Drop an. Ziehe sie auf andere Karten oder in Bereiche zum Sortieren.</p>
+            </div>
+            <button id="openNewMonsterModalBtn" class="px-3 py-1.5 rounded-lg bg-gold-500 text-forest-950 font-semibold text-xs">+ Monster hinzufügen</button>
+        </div>
+
+        <div class="space-y-3">
+            <h3 class="font-cinzel text-md font-bold text-gold-400 border-b border-gold-500/20 pb-1">⚡ Aktive Monster & Encounters</h3>
+            <div id="activeMonstersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[120px] p-2 rounded-xl" ondragover="event.preventDefault()" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="dropMonsterContainer(event, 'active')"></div>
+        </div>
+
+        <div class="space-y-3 pt-4">
+            <h3 class="font-cinzel text-md font-bold text-gray-400 border-b border-gray-700/40 pb-1">📚 Bibliothek (Archiv)</h3>
+            <div id="libraryMonstersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[120px] p-2 rounded-xl bg-forest-950/30 border border-dashed border-forest-800" ondragover="event.preventDefault()" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="dropMonsterContainer(event, 'library')"></div>
+        </div>
+    </section>
+
+    <!-- TAB 6: KNOTEN-ABENTEUER-ABLAUFPLAN -->
+    <section id="tab-knoten" class="tab-content hidden space-y-6">
+        <div class="bg-forest-900/60 border border-forest-700/40 rounded-xl p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-gold-500/20 pb-3">
+                <h2 class="font-cinzel text-xl font-bold text-gold-400">Knoten-Ablaufplan (Drag & Drop)</h2>
+                <button id="addNodeBtn" class="px-3 py-1.5 rounded-lg bg-gold-500 text-forest-950 font-semibold text-xs">+ Szene hinzufügen</button>
+            </div>
+            <div id="nodesGraphContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[300px]" ondragover="event.preventDefault()" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="dropNodeContainer(event)"></div>
+        </div>
+    </section>
+
+    <!-- TAB 7: INITIATIVE -->
+    <section id="tab-initiative" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="init-tracker-container">
+                    <div class="init-header">
+                        <div class="init-header-title"><span>⚔️</span> Initiative Tracker</div>
+                        <div class="init-header-controls">
+                            <div class="size-picker">
+                                <label for="square-slider">Token:</label>
+                                <input type="range" id="square-slider" min="70" max="150" value="110" oninput="adjustSquareSize(this.value)" />
+                            </div>
+                            <button onclick="addCombatant()" class="btn-primary">+ Kreatur</button>
+                            <button onclick="resetAllLogs()">📜 Logs leeren</button>
+                            <button onclick="resetTracker()" class="btn-danger-subtle">Alle Löschen</button>
+                        </div>
+                    </div>
+                    <div id="tracker-list"></div>
+                </div>
+            </div>
+            <!-- Rechte Spalte: Unabhängig scrollbarer Statblock -->
+            <div class="space-y-6 lg:sticky lg:top-20">
+                <div id="selectedCombatantCardContainer" class="bg-[#0b1b16] border border-[#1f4236] rounded-xl p-5 shadow-xl max-h-[calc(100vh-120px)] overflow-y-auto">
+                    <div class="text-center py-10 text-gray-400 text-xs italic">⚔️ Klicke links auf eine Kreatur, um ihren vollständigen Statblock hier anzuzeigen.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- MODAL: NODE (SZENE) BEARBEITEN / ERSTELLEN -->
+<div id="nodeModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-forest-900 border border-gold-500/40 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex justify-between border-b border-gold-500/20 pb-3">
+            <h3 id="nodeModalTitle" class="font-cinzel text-lg font-bold text-gold-400">Szene bearbeiten</h3>
+            <button class="closeNodeModalBtn text-gray-400 hover:text-white">✕</button>
+        </div>
+        <form id="nodeForm" class="space-y-3">
+            <input type="hidden" id="nodeIdInput">
+            <div>
+                <label class="block text-xs text-gray-300 mb-1">Titel der Szene</label>
+                <input id="nodeTitleInput" type="text" required class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-300 mb-1">Beschreibung / Ablauf</label>
+                <textarea id="nodeDescInput" rows="3" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-300 mb-1">Hinweise / Geheimnisse</label>
+                <input id="nodeCluesInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button type="button" class="closeNodeModalBtn px-4 py-2 bg-forest-800 text-gray-300 text-xs rounded-lg">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-gold-500 text-forest-950 font-bold text-xs rounded-lg">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: NPC -->
+<div id="npcModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-forest-900 border border-gold-500/40 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+        <div class="flex justify-between border-b border-gold-500/20 pb-3">
+            <h3 id="npcModalTitle" class="font-cinzel text-lg font-bold text-gold-400">NPC anlegen</h3>
+            <button class="closeModalBtn text-gray-400 hover:text-white">✕</button>
+        </div>
+        <form id="npcForm" class="space-y-3">
+            <input type="hidden" id="npcIdInput">
+            <input id="npcNameInput" type="text" required placeholder="Name" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcRoleInput" type="text" placeholder="Rolle" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcLocationInput" type="text" placeholder="Ort" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcVisualInput" type="text" placeholder="Optischer Anker" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcVoiceInput" type="text" placeholder="Stimme" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcGoalInput" type="text" placeholder="Motivation" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <input id="npcSecretInput" type="text" placeholder="Geheimnis" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
+            <div class="flex justify-end space-x-2 pt-2">
+                <button type="button" class="closeModalBtn px-4 py-2 bg-forest-800 text-gray-300 text-xs rounded-lg">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-gold-500 text-forest-950 font-bold text-xs rounded-lg">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: MONSTER -->
+<div id="monsterModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-forest-900 border border-gold-500/40 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between border-b border-gold-500/20 pb-3">
+            <h3 id="monsterModalTitle" class="font-cinzel text-lg font-bold text-gold-400">Monster bearbeiten</h3>
+            <button class="closeMonsterModalBtn text-gray-400 hover:text-white">✕</button>
+        </div>
+        <form id="monsterForm" class="space-y-4">
+            <input type="hidden" id="monsterIdInput">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-forest-950/60 p-3 rounded-lg border border-forest-700/50">
+                <div>
+                    <label class="block text-xs text-gold-400 font-bold mb-1">Kategorie</label>
+                    <select id="monsterCategorySelect" class="w-full bg-forest-900 text-gray-200 border border-forest-700 text-xs rounded p-2">
+                        <option value="active">⚡ Aktiv (Encounter)</option>
+                        <option value="library">📚 Bibliothek (Archiv)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gold-400 font-bold mb-1">Encounter-Farben (Mehrfachwahl)</label>
+                    <div id="outlineColorCheckboxes" class="flex items-center gap-3 pt-1">
+                        <label class="flex items-center space-x-1 cursor-pointer text-xs"><input type="checkbox" value="#ef4444" class="accent-red-500"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span></label>
+                        <label class="flex items-center space-x-1 cursor-pointer text-xs"><input type="checkbox" value="#3b82f6" class="accent-blue-500"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span></label>
+                        <label class="flex items-center space-x-1 cursor-pointer text-xs"><input type="checkbox" value="#d4af37" class="accent-gold-500"><span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span></label>
+                        <label class="flex items-center space-x-1 cursor-pointer text-xs"><input type="checkbox" value="#a855f7" class="accent-purple-500"><span class="w-3 h-3 rounded-full bg-purple-500 inline-block"></span></label>
+                        <label class="flex items-center space-x-1 cursor-pointer text-xs"><input type="checkbox" value="#22c55e" class="accent-green-500"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div><label class="block text-[11px] text-gray-400 mb-1">Name</label><input id="monsterNameInput" type="text" required class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Kreaturentyp</label><input id="monsterTypeInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Erfahrungspunkte (XP)</label><input id="monsterXpInput" type="number" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100" placeholder="z.B. 700"></div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+                <div><label class="block text-[11px] text-gray-400 mb-1">Rüstungsklasse (RK)</label><input id="monsterAcInput" type="number" required class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Trefferpunkte (TP)</label><input id="monsterHpInput" type="number" required class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Initiative</label><input id="monsterInitInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Bewegungsrate</label><input id="monsterSpeedInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+            </div>
+
+            <div class="bg-forest-950/40 p-3 rounded-lg border border-forest-700/40 space-y-3">
+                <label class="block text-xs text-gold-400 font-bold">Attribute, Modifikatoren & Rettungswürfe (Wert / Mod / RW)</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">STÄRKE (STÄ)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-sta-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-sta-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-sta-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">GESCHICKLICHKEIT (GES)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-ges-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-ges-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-ges-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">KONSTITUTION (KON)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-kon-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-kon-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-kon-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">INTELLIGENZ (INT)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-int-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-int-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-int-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">WEISHEIT (WEI)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-wei-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-wei-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-wei-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                    <div class="bg-forest-900 p-2 rounded border border-forest-800">
+                        <span class="text-[10px] text-gold-300 font-bold block mb-1">CHARISMA (CHA)</span>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div><label class="text-[9px] text-gray-400 block">Wert</label><input id="m-cha-val" type="number" value="10" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">Mod</label><input id="m-cha-mod" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                            <div><label class="text-[9px] text-gray-400 block">RW</label><input id="m-cha-rw" type="text" value="+0" class="w-full bg-forest-950 text-xs p-1 text-center border border-forest-700 rounded text-gray-150"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div><label class="block text-[11px] text-gray-400 mb-1">Fähigkeiten / Fertigkeiten</label><input id="monsterSkillsInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Ausrüstung</label><input id="monsterEquipmentInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div><label class="block text-[11px] text-gray-400 mb-1">Resistenzen</label><input id="monsterResistancesInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Sinne</label><input id="monsterSensesInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+                <div><label class="block text-[11px] text-gray-400 mb-1">Sprachen</label><input id="monsterLanguagesInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1">Merkmale (Traits)</label>
+                <textarea id="monsterTraitsInput" rows="2" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100" placeholder="Jedes Merkmal in eine neue Zeile..."></textarea>
+            </div>
+
+            <div class="space-y-1 pt-2 border-t border-forest-700/50">
+                <div class="flex justify-between items-center"><label class="text-xs text-gold-400 font-bold">Aktionen</label><button type="button" onclick="addDynamicField('actionsContainer')" class="px-2 py-0.5 bg-gold-500/20 text-gold-400 text-xs rounded">+ Aktion</button></div>
+                <div id="actionsContainer" class="space-y-2 pt-1"></div>
+            </div>
+
+            <div class="space-y-1 pt-2 border-t border-forest-700/50">
+                <div class="flex justify-between items-center"><label class="text-xs text-gold-400 font-bold">Bonus-Aktionen</label><button type="button" onclick="addDynamicField('bonusActionsContainer')" class="px-2 py-0.5 bg-gold-500/20 text-gold-400 text-xs rounded">+ Bonus-Aktion</button></div>
+                <div id="bonusActionsContainer" class="space-y-2 pt-1"></div>
+            </div>
+
+            <div class="space-y-1 pt-2 border-t border-forest-700/50">
+                <div class="flex justify-between items-center"><label class="text-xs text-gold-400 font-bold">Reaktionen</label><button type="button" onclick="addDynamicField('reactionsContainer')" class="px-2 py-0.5 bg-gold-500/20 text-gold-400 text-xs rounded">+ Reaktion</button></div>
+                <div id="reactionsContainer" class="space-y-2 pt-1"></div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1">Kampftaktik</label>
+                <textarea id="monsterTacticsInput" rows="2" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2 text-gray-100"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button type="button" class="closeMonsterModalBtn px-4 py-2 bg-forest-800 text-gray-300 text-xs rounded-lg">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-gold-500 text-forest-950 font-bold text-xs rounded-lg">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const CONDITIONS = [
+        { id: 'betaeubt', name: 'Betäubt', color: '#f59e0b', textOnActive: '#000000' },
+        { id: 'bewusstlos', name: 'Bewusstlos', color: '#64748b', textOnActive: '#ffffff' },
+        { id: 'bezaubert', name: 'Bezaubert', color: '#ec4899', textOnActive: '#ffffff' },
+        { id: 'blind', name: 'Blind', color: '#3b82f6', textOnActive: '#ffffff' },
+        { id: 'erschoepft', name: 'Erschöpft', color: '#d97706', textOnActive: '#ffffff' },
+        { id: 'festgesetzt', name: 'Festgesetzt', color: '#8b5cf6', textOnActive: '#ffffff' },
+        { id: 'gelaehmt', name: 'Gelähmt', color: '#ef4444', textOnActive: '#ffffff' },
+        { id: 'gepackt', name: 'Gepackt', color: '#14b8a6', textOnActive: '#000000' },
+        { id: 'kampfunfaehig', name: 'Kampfunfähig', color: '#dc2626', textOnActive: '#ffffff' },
+        { id: 'liegend', name: 'Liegend', color: '#a855f7', textOnActive: '#ffffff' },
+        { id: 'taub', name: 'Taub', color: '#6366f1', textOnActive: '#ffffff' },
+        { id: 'unsichtbar', name: 'Unsichtbar', color: '#06b6d4', textOnActive: '#ffffff' },
+        { id: 'veraengstigt', name: 'Verängstigt', color: '#10b981', textOnActive: '#ffffff' },
+        { id: 'vergiftet', name: 'Vergiftet', color: '#22c55e', textOnActive: '#ffffff' },
+        { id: 'versteinert', name: 'Versteinert', color: '#78716c', textOnActive: '#ffffff' }
+    ];
+
+    const DEFAULT_SECRETS = [
+        { id: '1', text: 'Der Baron steht heimlich unter dem Einfluss einer Erzteufelin.', status: 'hidden', tag: 'Politik' },
+        { id: '2', text: 'Im versunkenen Tempel ruht ein Stück des Ur-Smaragds.', status: 'hidden', tag: 'Artefakt' }
+    ];
+
+    const DEFAULT_NPCS = [
+        { id: 'npc-1', name: 'Valeria Frostglut', role: 'Tiefling Diplomat', location: 'Silber-Zitadelle', visual: 'Monokel', voice: 'Leise', goal: 'Handelspakt erzwingen', secret: 'Waffenhandel' }
+    ];
+
+    const DEFAULT_MONSTERS = [
+        {
+            id: 'm-1', name: 'SCHATTENPANTHER', type: 'Bestie (Mittel)', xp: '700', ac: 15, hp: 45, init: '+4', speed: '12m / Klettern 9m',
+            stats: {
+                sta: { val: 16, mod: '+3', rw: '+3' },
+                ges: { val: 18, mod: '+4', rw: '+6' },
+                kon: { val: 14, mod: '+2', rw: '+2' },
+                int: { val: 3, mod: '-4', rw: '-4' },
+                wei: { val: 12, mod: '+1', rw: '+3' },
+                cha: { val: 8, mod: '-1', rw: '-1' }
+            },
+            skills: 'Wahrnehmung +5, Heimlichkeit +8',
+            resistances: 'Keine',
+            senses: 'Dunkelsicht 18m, Passiv 15',
+            languages: '—',
+            equipment: '',
+            traits: ['Schatten-Tarnung: Hat Vorteil auf Würfe für Heimlichkeit im Dämmerlicht oder in Dunkelheit.'],
+            actions: [
+                { name: 'Anspringen', desc: 'Wenn der Panther sich 6m geradeaus auf das Ziel zubewegt, muss das Ziel einen Stärke-Rettungswurf (SG 14) bestehen oder liegt hin.' },
+                { name: 'Biss', desc: '+6 zum Treffen, Reichweite 1.5m, Schaden: 10 (2d6 + 4) Hieb-Schaden.' }
+            ],
+            bonusActions: [
+                { name: 'Rückzug im Schatten', desc: 'Kann im Dämmerlicht als Bonusaktion die Verstecken-Aktion nutzen.' }
+            ],
+            reactions: [],
+            tactics: 'Nutzt Dämmerung & Hinterhalt. Zielt bevorzugt auf isolierte Zauberwirker.',
+            category: 'active', outlines: ['#22c55e']
+        }
+    ];
+
+    const DEFAULT_NODES = [
+        { id: 'n-1', title: '1. Das Nebel-Wirtshaus', status: 'completed', description: 'Die Helden treffen sich im Gasthaus.', clues: 'Blutiges Siegel' },
+        { id: 'n-2', title: '2. Der Wald-Hinterhalt', status: 'planned', description: 'Wölfe greifen an.', clues: 'Spuren im Schlamm' }
+    ];
+
+    const NAME_DATABASE = {
+        mensch: {
+            vornamen: {
+                maennlich: ['Valentin', 'Roderick', 'Wilhelm', 'Alaric', 'Henrik', 'Cedric', 'Gideon', 'Roland', 'Valerian', 'Wulfric', 'Bastian', 'Cassian', 'Kaelen', 'Leofric', 'Gareth', 'Aldous', 'Eldrin', 'Benedict', 'Godfrey', 'Caelen'],
+                weiblich: ['Clara', 'Helena', 'Isolde', 'Rowena', 'Thalia', 'Valeria', 'Beatrix', 'Rosalind', 'Eleanor', 'Genevieve', 'Aurelia', 'Lyra', 'Adelaide', 'Mireia', 'Evelyn', 'Caelia', 'Gwendolyn', 'Seraphina']
+            },
+            nachnamen: ['Falkenhorst', 'Dornenwall', 'Eichenschild', 'Winterberg', 'Holzmann', 'Adlerstein', 'Brandt', 'Winterborn', 'Schwarzweber', 'Königsmark', 'Löwenherz', 'Sternenwall', 'Steinberger', 'Eisenhaag']
+        },
+        elf: {
+            vornamen: {
+                maennlich: ['Caelynn', 'Melandrach', 'Faelar', 'Therai', 'Aelar', 'Adran', 'Berrian', 'Erevan', 'Galinndan', 'Himo', 'Ivellios', 'Laucian', 'Mindartis', 'Paelias', 'Soveliss', 'Thamior', 'Tharivol', 'Vararis'],
+                weiblich: ['Althaea', 'Anastrianna', 'Andraste', 'Antinua', 'Bethrynna', 'Birel', 'Enna', 'Felosial', 'Ielenia', 'Leshanna', 'Lia', 'Meriele', 'Naivara', 'Quelenna', 'Sariel', 'Shanairra', 'Vadania', 'Xiloscient']
+            },
+            nachnamen: ['Galanodel', 'Amastacia', 'Liadon', 'Siannodel', 'Xiloscient', 'Holimion', 'Ilphelkiir', 'Meliamne', 'Nailo', 'Nae\'lo', 'Thimdral', 'Vaelis', 'Kaelenis', 'Faeril', 'Solas', 'Starling', 'Lothlorien', 'Oakenheel']
+        },
+        tiefling: {
+            vornamen: {
+                maennlich: ['Akemenos', 'Barakas', 'Damien', 'Ekemon', 'Iados', 'Kairon', 'Leucis', 'Melech', 'Morthos', 'Pelaios', 'Skamos', 'Therai', 'Malakor', 'Zephyrus', 'Ignis', 'Xavier', 'Azazel', 'Malthus'],
+                weiblich: ['Aktaia', 'Anakis', 'Bryseis', 'Criella', 'Damaia', 'Ea', 'Kallista', 'Lerissa', 'Makaria', 'Nemeia', 'Orianna', 'Phelaia', 'Rieta', 'Sorrow', 'Havoc', 'Grief', 'Torment', 'Veritas']
+            },
+            nachnamen: ['Despair', 'Havoc', 'Lament', 'Malice', 'Vengeance', 'Zephyr', 'Ignis', 'Ashford', 'Brimstone', 'Dread', 'Shadowend', 'Netherwalker', 'Graveheart', 'Ruin', 'Obsidian', 'Ironwill']
+        },
+        zwerg: {
+            vornamen: {
+                maennlich: ['Adrik', 'Baern', 'Brottor', 'Dain', 'Darrak', 'Eberk', 'Einkil', 'Fargrim', 'Flint', 'Harbek', 'Kildrak', 'Morgran', 'Orsik', 'Oskar', 'Rangrim', 'Thorin', 'Thoradin', 'Torgrim', 'Vondal'],
+                weiblich: ['Amber', 'Artin', 'Audhild', 'Bardryn', 'Dagnal', 'Diesa', 'Eldeth', 'Falkrunn', 'Finellen', 'Gurdis', 'Helja', 'Hlin', 'Kathra', 'Kristryd', 'Ilde', 'Liftrasa', 'Sannl', 'Torbera', 'Vistra']
+            },
+            nachnamen: ['Ambossbrecher', 'Goldader', 'Eisenfaust', 'Steinbarts', 'Kupferkessel', 'Runenschmied', 'Granitbrecher', 'Tiefenritter', 'Erzkron', 'Felsenschild', 'Bergdrache', 'Silberhammer']
+        },
+        gnom: {
+            vornamen: {
+                maennlich: ['Bimble', 'Zook', 'Nim', 'Boddyknock', 'Burgell', 'Dimble', 'Fonkin', 'Gimbl', 'Garrick', 'Gerbo', 'Jorclack', 'Kellen', 'Namfoodle', 'Orryn', 'Roondar', 'Seebo', 'Wrenn', 'Zook'],
+                weiblich: ['Bimpnottin', 'Ellywick', 'Loopmottin', 'Bree', 'Callie', 'Ellyjoybell', 'Lilli', 'Marna', 'Roywyn', 'Shamil', 'Tana', 'Waywocket', 'Zanna', 'Nissa', 'Nyx', 'Pippa', 'Tink']
+            },
+            nachnamen: ['Scheppen', 'Folkor', 'Garrick', 'Nackle', 'Timbers', 'Beren', 'Daergel', 'Murnig', 'Turen', 'Sparklegem', 'Stumbleduck', 'Copperpot', 'Fiddlefen', 'Pocketsmith', 'Whistlewind']
+        },
+        ork: {
+            vornamen: {
+                maennlich: ['Dench', 'Feng', 'Gell', 'Henk', 'Holg', 'Imsh', 'Keth', 'Krusk', 'Mhurren', 'Ront', 'Shump', 'Thokk', 'Grommash', 'Kargath', 'Muzgob', 'Durok', 'Krag', 'Ugarth', 'Brak'],
+                weiblich: ['Baggi', 'Emen', 'Engwer', 'Kansif', 'Myev', 'Neega', 'Ova', 'Ovell', 'Sutha', 'Vola', 'Volen', 'Gorgona', 'Zulka', 'Borka', 'Shagra', 'Urzula', 'Kraka', 'Morda']
+            },
+            nachnamen: ['Schädelspalter', 'Blutauge', 'Eisenkiefer', 'Kriegsschrei', 'Knochenbrecher', 'Felsbeisser', 'Nachtreisser', 'Dunkelzorn', 'Blutfaust', 'Sturmbrecher', 'Schattenkralle']
+        },
+        halbling: {
+            vornamen: {
+                maennlich: ['Alton', 'Ander', 'Cade', 'Corrin', 'Eldon', 'Errich', 'Finnan', 'Garret', 'Lindal', 'Lyle', 'Merric', 'Milo', 'Osborn', 'Perrin', 'Reed', 'Roscoe', 'Wellby', 'Barnaby'],
+                weiblich: ['Andry', 'Bree', 'Callacta', 'Cora', 'Euphemia', 'Jillian', 'Lavinia', 'Lidda', 'Merla', 'Nedda', 'Paela', 'Portia', 'Seraphina', 'Shaena', 'Trym', 'Vani', 'Verna', 'Marigold']
+            },
+            nachnamen: ['Grünflanke', 'Schnellfuss', 'Trommelstock', 'Fassbinder', 'Bauchklang', 'Unterberg', 'Kleintal', 'Sonnenglanz', 'Gartenfreund', 'Teekessel', 'Auenwind', 'Beutlin']
+        }
+    };
+
+    let state = {
+        theme: 'dark',
+        activeTab: 'auftakt',
+        secrets: DEFAULT_SECRETS,
+        npcs: DEFAULT_NPCS,
+        monsters: DEFAULT_MONSTERS,
+        nodes: DEFAULT_NODES,
+        sessionHook: '',
+        checklist: [{ id: '1', text: 'Spionage-Hinweis auflösen', done: true }],
+        recap: ['Die Helden entkamen knapp.'],
+        combatants: [{ id: '1', name: 'Held Paladin', init: 20, hp: 50, maxHp: 50, tempHp: 0, img: '', conditions: [], history: ['Start'] }],
+        activeId: '1'
+    };
+
+    function loadState() {
+        try {
+            const saved = localStorage.getItem('sylvanus_codex_data_v17');
+            if (saved) state = { ...state, ...JSON.parse(saved) };
+        } catch (e) { console.error(e); }
+    }
+
+    function saveState() {
+        try { localStorage.setItem('sylvanus_codex_data_v17', JSON.stringify(state)); } catch (e) { console.error(e); }
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+        const a = document.createElement('a'); a.href = dataStr; a.download = `sylvanus_backup.json`;
+        document.body.appendChild(a); a.click(); a.remove(); showToast("Backup exportiert!", "success");
+    }
+
+    function importData(event) {
+        const reader = new FileReader();
+        if (event.target.files[0]) {
+            reader.readAsText(event.target.files[0], "UTF-8");
+            reader.onload = function(e) {
+                try {
+                    state = { ...state, ...JSON.parse(e.target.result) };
+                    saveState();
+                    showToast("Import erfolgreich! Lade neu...", "success");
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500); // Gibt iOS/WebKit 0,5 Sekunden Zeit zum Speichern
+                }
+                catch (err) { showToast("Import-Fehler!", "error"); }
+            };
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto px-4 py-2.5 rounded-lg text-xs font-semibold shadow-xl border flex items-center space-x-2 transition-all transform translate-y-2 opacity-0 duration-200 ${type === 'success' ? 'bg-forest-900 border-gold-500 text-gold-300' : 'bg-forest-900 border-forest-600 text-gray-200'}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+        setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 200); }, 3000);
+    }
+
+    function initTabs() {
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.getAttribute('data-tab');
+                state.activeTab = target;
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active-tab', 'bg-gold-500/20', 'text-gold-400', 'border', 'border-gold-500/40'));
+                tab.classList.add('active-tab', 'bg-gold-500/20', 'text-gold-400', 'border', 'border-gold-500/40');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                document.getElementById(`tab-${target}`).classList.remove('hidden');
+                saveState();
+            });
+        });
+    }
+
+    function initTheme() {
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const htmlEl = document.documentElement;
+        function applyTheme(t) {
+            if (t === 'dark') htmlEl.classList.add('dark'); else htmlEl.classList.remove('dark');
+            state.theme = t; saveState();
+        }
+        themeBtn.addEventListener('click', () => applyTheme(htmlEl.classList.contains('dark') ? 'light' : 'dark'));
+        applyTheme(state.theme || 'dark');
+    }
+
+    function renderAuftaktTab() {
+        const hook = document.getElementById('sessionHookInput');
+        hook.value = state.sessionHook || '';
+        hook.oninput = (e) => { state.sessionHook = e.target.value; saveState(); };
+
+        const checkContainer = document.getElementById('checklistItemsContainer');
+        checkContainer.innerHTML = '';
+        state.checklist.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'draggable-item flex items-center justify-between p-2 rounded bg-forest-950/50 border border-forest-700/40 text-xs';
+            row.draggable = true;
+            row.dataset.index = index;
+
+            row.innerHTML = `
+                <div class="flex items-center space-x-2 flex-grow cursor-pointer">
+                    <input type="checkbox" ${item.done ? 'checked' : ''} class="rounded bg-forest-900 border-forest-600 text-gold-500">
+                    <span class="${item.done ? 'line-through text-gray-500' : 'text-gray-200'}">${item.text}</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <button class="text-gray-400 hover:text-gold-300 p-1 edit-item" title="Bearbeiten">✏️</button>
+                    <button class="text-gray-500 hover:text-red-400 p-1 delete-item" title="Löschen">✕</button>
+                </div>
+            `;
+
+            row.querySelector('input[type="checkbox"]').onchange = (e) => { item.done = e.target.checked; saveState(); renderAuftaktTab(); };
+            row.querySelector('.edit-item').onclick = () => {
+                const newText = prompt('Meilenstein bearbeiten:', item.text);
+                if (newText !== null && newText.trim() !== '') {
+                    item.text = newText.trim();
+                    saveState();
+                    renderAuftaktTab();
+                }
+            };
+            row.querySelector('.delete-item').onclick = () => {
+                state.checklist = state.checklist.filter(c => c.id !== item.id);
+                saveState();
+                renderAuftaktTab();
+            };
+
+            // Drag & Drop for Checklist
+            row.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); row.classList.add('dragging'); };
+            row.ondragend = () => { row.classList.remove('dragging'); };
+            row.ondragover = (e) => { e.preventDefault(); };
+            row.ondrop = (e) => {
+                e.preventDefault();
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIdx = index;
+                if (!isNaN(fromIdx) && fromIdx !== toIdx) {
+                    const moved = state.checklist.splice(fromIdx, 1)[0];
+                    state.checklist.splice(toIdx, 0, moved);
+                    saveState();
+                    renderAuftaktTab();
+                }
+            };
+
+            checkContainer.appendChild(row);
+        });
+
+        const recapContainer = document.getElementById('recapListContainer');
+        recapContainer.innerHTML = '';
+        state.recap.forEach((pt, index) => {
+            const card = document.createElement('div');
+            card.className = 'bg-forest-950/60 p-3 rounded-lg border border-forest-700/50 flex justify-between items-start text-xs text-gray-200';
+            card.innerHTML = `<span>• ${pt}</span><button class="text-gray-500 hover:text-red-400">✕</button>`;
+            card.querySelector('button').onclick = () => { state.recap.splice(index, 1); saveState(); renderAuftaktTab(); };
+            recapContainer.appendChild(card);
+        });
+    }
+    document.getElementById('addChecklistItemBtn').onclick = () => { const t = prompt('Neuer Meilenstein:'); if(t){ state.checklist.push({id:Date.now().toString(), text:t, done:false}); saveState(); renderAuftaktTab(); } };
+    document.getElementById('addRecapItemBtn').onclick = () => { const t = prompt('Stichpunkt:'); if(t){ state.recap.push(t); saveState(); renderAuftaktTab(); } };
+
+    function renderSecretsTab() {
+        const grid = document.getElementById('secretsGrid');
+        grid.innerHTML = '';
+        state.secrets.forEach(s => {
+            const card = document.createElement('div');
+            card.className = `p-4 rounded-xl border shadow-md flex flex-col justify-between ${s.status === 'revealed' ? 'bg-forest-950/40 border-forest-800 text-gray-400' : 'bg-forest-900/80 border-forest-700/60 text-gray-100'}`;
+            card.innerHTML = `<div><span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-gold-500/20 text-gold-400">${s.tag}</span><p class="text-xs mt-2 ${s.status==='revealed'?'line-through':''}">${s.text}</p></div><div class="flex justify-end gap-2 pt-2"><button class="text-xs text-gold-300 px-2 py-1 bg-gold-500/20 rounded">${s.status==='revealed'?'Verbergen':'Enthüllen'}</button><button class="text-xs text-red-400">🗑️</button></div>`;
+            card.querySelector('button').onclick = () => { s.status = s.status==='revealed'?'hidden':'revealed'; saveState(); renderSecretsTab(); };
+            card.querySelectorAll('button')[1].onclick = () => { state.secrets = state.secrets.filter(x => x.id !== s.id); saveState(); renderSecretsTab(); };
+            grid.appendChild(card);
+        });
+    }
+    document.getElementById('addSecretBtn').onclick = () => { const t = prompt('Geheimnis:'); if(t){ state.secrets.unshift({id:Date.now().toString(), text:t, status:'hidden', tag:'Geheimnis'}); saveState(); renderSecretsTab(); } };
+
+    let currentFirstName = "Valentin";
+    let currentLastName = "Falkenhorst";
+    let displayedFirstNames = [];
+    let displayedLastNames = [];
+
+    function getRandomItems(array, count) {
+        const shuffled = [...array].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    }
+
+    function generateNewFirstNames() {
+        const race = document.getElementById('nameGenRaceSelect').value;
+        const gender = document.getElementById('nameGenGenderSelect').value;
+        const rData = NAME_DATABASE[race] || NAME_DATABASE.mensch;
+        const vs = rData.vornamen[gender] || rData.vornamen.maennlich;
+
+        displayedFirstNames = getRandomItems(vs, 5);
+        if (!displayedFirstNames.includes(currentFirstName)) {
+            currentFirstName = displayedFirstNames[0];
+        }
+        renderNameLists();
+    }
+
+    function generateNewLastNames() {
+        const race = document.getElementById('nameGenRaceSelect').value;
+        const rData = NAME_DATABASE[race] || NAME_DATABASE.mensch;
+        const ns = rData.nachnamen;
+
+        displayedLastNames = getRandomItems(ns, 5);
+        if (!displayedLastNames.includes(currentLastName)) {
+            currentLastName = displayedLastNames[0];
+        }
+        renderNameLists();
+    }
+
+    function fullNameGeneratorReset() {
+        generateNewFirstNames();
+        generateNewLastNames();
+    }
+
+    function renderNameLists() {
+        const fnContainer = document.getElementById('vornamenListContainer');
+        const lnContainer = document.getElementById('nachnamenListContainer');
+
+        fnContainer.innerHTML = displayedFirstNames.map(fn => {
+            const isSelected = fn === currentFirstName;
+            return `
+                <div class="name-selection-item ${isSelected ? 'selected' : ''}" onclick="selectFirstName('${fn}')">
+                    <div class="flex items-center">
+                        <span class="name-radio-dot"></span>
+                        <span class="text-xs font-semibold ${isSelected ? 'text-[#eacb67]' : 'text-gray-200'}">${fn}</span>
+                    </div>
+                    <button onclick="event.stopPropagation(); copySingleText('${fn}')" title="Vorname kopieren" class="text-gray-500 hover:text-gold-400 p-1 text-xs">📋</button>
+                </div>
+            `;
+        }).join('');
+
+        lnContainer.innerHTML = displayedLastNames.map(ln => {
+            const isSelected = ln === currentLastName;
+            return `
+                <div class="name-selection-item ${isSelected ? 'selected' : ''}" onclick="selectLastName('${ln}')">
+                    <div class="flex items-center">
+                        <span class="name-radio-dot"></span>
+                        <span class="text-xs font-semibold ${isSelected ? 'text-[#eacb67]' : 'text-gray-200'}">${ln}</span>
+                    </div>
+                    <button onclick="event.stopPropagation(); copySingleText('${ln}')" title="Nachname kopieren" class="text-gray-500 hover:text-gold-400 p-1 text-xs">📋</button>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('fullGeneratedNameDisplay').textContent = `${currentFirstName} ${currentLastName}`;
+    }
+
+    function selectFirstName(fn) {
+        currentFirstName = fn;
+        renderNameLists();
+    }
+
+    function selectLastName(ln) {
+        currentLastName = ln;
+        renderNameLists();
+    }
+
+    function copySingleText(text) {
+        navigator.clipboard.writeText(text);
+        showToast(`"${text}" kopiert!`, "success");
+    }
+
+    function copyActiveGeneratedName() {
+        const fullName = `${currentFirstName} ${currentLastName}`;
+        navigator.clipboard.writeText(fullName);
+        showToast(`"${fullName}" in Zwischenablage kopiert!`, "success");
+    }
+
+    function transferNameToNPC() {
+        const fullName = `${currentFirstName} ${currentLastName}`;
+        openNpcModalForEdit(null);
+        document.getElementById('npcNameInput').value = fullName;
+    }
+
+    document.getElementById('nameGenRaceSelect').onchange = fullNameGeneratorReset;
+    document.getElementById('nameGenGenderSelect').onchange = fullNameGeneratorReset;
+
+    function renderNPCsTab() {
+        const grid = document.getElementById('npcCardsGrid');
+        grid.innerHTML = '';
+        const query = document.getElementById('npcSearchInput').value.toLowerCase();
+
+        const filtered = state.npcs.filter(n =>
+            n.name.toLowerCase().includes(query) ||
+            (n.role && n.role.toLowerCase().includes(query)) ||
+            (n.location && n.location.toLowerCase().includes(query))
+        );
+
+        filtered.forEach(n => {
+            const card = document.createElement('div');
+            card.className = 'bg-forest-900/80 border border-forest-700/60 rounded-xl p-4 shadow-md text-xs space-y-2 flex flex-col justify-between';
+            card.innerHTML = `
+                <div>
+                    <h3 class="font-cinzel text-base font-bold text-gold-400">${n.name}</h3>
+                    <p class="text-gray-400">${n.role || 'Keine Rolle'}</p>
+                    ${n.location ? `<p class="text-gray-300 mt-1"><strong>Ort:</strong> ${n.location}</p>` : ''}
+                    ${n.goal ? `<p class="text-gray-300 mt-1"><strong>Ziel:</strong> ${n.goal}</p>` : ''}
+                </div>
+                <div class="flex justify-end gap-3 pt-2 border-t border-forest-800">
+                    <button class="edit-npc text-gold-400 hover:text-gold-300">✏️ Bearbeiten</button>
+                    <button class="delete-npc text-red-400 hover:text-red-300">🗑️ Löschen</button>
+                </div>
+            `;
+            card.querySelector('.edit-npc').onclick = () => openNpcModalForEdit(n);
+            card.querySelector('.delete-npc').onclick = () => {
+                if (confirm(`NPC "${n.name}" wirklich löschen?`)) {
+                    state.npcs = state.npcs.filter(x => x.id !== n.id);
+                    saveState();
+                    renderNPCsTab();
+                    showToast('NPC gelöscht', 'info');
+                }
+            };
+            grid.appendChild(card);
+        });
+    }
+
+    function openNpcModalForEdit(n = null) {
+        document.getElementById('npcModalTitle').textContent = n ? 'NPC bearbeiten' : 'Neuen NPC anlegen';
+        document.getElementById('npcIdInput').value = n ? n.id : '';
+        document.getElementById('npcNameInput').value = n ? n.name : '';
+        document.getElementById('npcRoleInput').value = n ? (n.role || '') : '';
+        document.getElementById('npcLocationInput').value = n ? (n.location || '') : '';
+        document.getElementById('npcVisualInput').value = n ? (n.visual || '') : '';
+        document.getElementById('npcVoiceInput').value = n ? (n.voice || '') : '';
+        document.getElementById('npcGoalInput').value = n ? (n.goal || '') : '';
+        document.getElementById('npcSecretInput').value = n ? (n.secret || '') : '';
+        document.getElementById('npcModal').classList.remove('hidden');
+    }
+
+    document.getElementById('openNewNpcModalBtn').onclick = () => openNpcModalForEdit(null);
+    document.querySelectorAll('.closeModalBtn').forEach(b => b.onclick = () => document.getElementById('npcModal').classList.add('hidden'));
+    document.getElementById('npcSearchInput').oninput = () => renderNPCsTab();
+
+    document.getElementById('npcForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('npcIdInput').value;
+        const npcObj = {
+            id: id || 'npc-'+Date.now(),
+            name: document.getElementById('npcNameInput').value,
+            role: document.getElementById('npcRoleInput').value,
+            location: document.getElementById('npcLocationInput').value,
+            visual: document.getElementById('npcVisualInput').value,
+            voice: document.getElementById('npcVoiceInput').value,
+            goal: document.getElementById('npcGoalInput').value,
+            secret: document.getElementById('npcSecretInput').value
+        };
+        if (id) {
+            const idx = state.npcs.findIndex(x => x.id === id);
+            if (idx !== -1) state.npcs[idx] = npcObj;
+        } else {
+            state.npcs.unshift(npcObj);
+        }
+        saveState();
+        document.getElementById('npcModal').classList.add('hidden');
+        renderNPCsTab();
+        showToast('NPC gespeichert!', 'success');
+    };
+
+    function buildMonsterStatblockHTML(m, isCard = true, cardIndex = 0) {
+        const s = m.stats || {};
+
+        let outlinesHtml = '';
+        if (Array.isArray(m.outlines) && m.outlines.length > 0) {
+            outlinesHtml = `<div class="flex gap-1.5 mb-2">${m.outlines.map(c => `<span class="w-4 h-2 rounded-full inline-block shadow-sm" style="background:${c}"></span>`).join('')}</div>`;
+        }
+
+        const traitsHtml = m.traits && m.traits.length > 0 ? `
+            <div class="mt-4">
+                <h4 class="text-xs font-bold text-[#eacb67] tracking-wider uppercase mb-1">MERKMALE:</h4>
+                <div class="space-y-1">
+                    ${m.traits.map(t => {
+            const parts = t.split(':');
+            if(parts.length > 1) {
+                return `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${parts[0]}:</strong>${parts.slice(1).join(':')}</p>`;
+            }
+            return `<p class="text-xs text-gray-200">${t}</p>`;
+        }).join('')}
+                </div>
+            </div>` : '';
+
+        const actionsHtml = m.actions && m.actions.length > 0 ? `
+            <div class="mt-4">
+                <h4 class="text-xs font-bold text-[#eacb67] tracking-wider uppercase mb-1">AKTIONEN:</h4>
+                <div class="space-y-1.5">
+                    ${m.actions.map(a => `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${a.name}:</strong>${a.desc}</p>`).join('')}
+                </div>
+            </div>` : '';
+
+        const bonusActionsHtml = m.bonusActions && m.bonusActions.length > 0 ? `
+            <div class="mt-4">
+                <h4 class="text-xs font-bold text-[#eacb67] tracking-wider uppercase mb-1">BONUS-AKTIONEN:</h4>
+                <div class="space-y-1.5">
+                    ${m.bonusActions.map(ba => `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${ba.name}:</strong>${ba.desc}</p>`).join('')}
+                </div>
+            </div>` : '';
+
+        const reactionsHtml = m.reactions && m.reactions.length > 0 ? `
+            <div class="mt-4">
+                <h4 class="text-xs font-bold text-[#eacb67] tracking-wider uppercase mb-1">REAKTIONEN:</h4>
+                <div class="space-y-1.5">
+                    ${m.reactions.map(r => `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${r.name}:</strong>${r.desc}</p>`).join('')}
+                </div>
+            </div>` : '';
+
+        const tacticsHtml = m.tactics ? `
+            <div class="mt-4 bg-[#081511] border border-[#1b3d32] rounded-lg p-3">
+                <h4 class="text-xs font-bold text-[#eacb67] flex items-center gap-1 mb-1">⚔️ KI-KAMPFTAKTIK:</h4>
+                <p class="text-xs text-gray-300 leading-relaxed">${m.tactics}</p>
+            </div>` : '';
+
+        const buttonsHtml = isCard ? `
+            <div class="flex justify-end items-center gap-2 pt-4 mt-4 border-t border-[#1b3d32]">
+                <button class="add-to-init-btn text-xs px-3 py-1.5 bg-[#23483d] hover:bg-[#34705d] text-[#eacb67] font-semibold rounded-md border border-[#d4af37]/40 flex items-center gap-1 transition-all">+ Initiative</button>
+                <button class="duplicate-btn text-xs px-3 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-gray-300 rounded-md border border-gray-700/60 flex items-center gap-1 transition-all">📋 Duplizieren</button>
+                <button class="edit-btn text-xs px-3 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all">✏️ Bearbeiten</button>
+                <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all">🗑️</button>
+            </div>` : '';
+
+        return `
+            ${outlinesHtml}
+            <div class="flex justify-between items-start mb-1">
+                <div>
+                    <h3 class="font-cinzel text-xl font-bold tracking-wide text-[#eacb67] uppercase">${m.name}</h3>
+                    <p class="text-xs text-gray-400">${m.type}</p>
+                </div>
+                <div class="bg-[#213a30] text-[#eacb67] border border-[#385e50] text-xs font-bold px-3 py-1 rounded-md">
+                    ${m.xp ? (m.xp.toString().includes('XP') ? m.xp : m.xp + ' XP') : '0 XP'}
+                </div>
+            </div>
+
+            <div class="bg-[#081511] border border-[#1c3c31] rounded-lg p-2.5 my-3 grid grid-cols-4 text-center divide-x divide-[#1c3c31]">
+                <div>
+                    <div class="text-[10px] text-gray-400">RK (AC)</div>
+                    <div class="text-sm font-extrabold text-[#eacb67] mt-0.5">${m.ac}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400">TP (HP)</div>
+                    <div class="text-sm font-extrabold text-[#22c55e] mt-0.5">${m.hp}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400">Initiative</div>
+                    <div class="text-sm font-bold text-gray-100 mt-0.5">${m.init}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400">Tempo</div>
+                    <div class="text-xs font-bold text-gray-100 mt-1">${m.speed}</div>
+                </div>
+            </div>
+
+            <div class="bg-[#081511] border border-[#1c3c31] rounded-lg p-2 my-3 grid grid-cols-3 gap-y-2 divide-x divide-[#1c3c31]">
+                <div class="px-1.5 text-center">
+                    <span class="text-xs font-bold text-[#eacb67]">STÄ</span>
+                    <span class="text-xs font-bold text-gray-100">${s.sta?.val||10} (${s.sta?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.sta?.rw||'+0'}</span>
+                </div>
+                <div class="px-1.5 text-center">
+                    <span class="text-xs font-bold text-[#eacb67]">GES</span>
+                    <span class="text-xs font-bold text-gray-100">${s.ges?.val||10} (${s.ges?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.ges?.rw||'+0'}</span>
+                </div>
+                <div class="px-1.5 text-center">
+                    <span class="text-xs font-bold text-[#eacb67]">KON</span>
+                    <span class="text-xs font-bold text-gray-100">${s.kon?.val||10} (${s.kon?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.kon?.rw||'+0'}</span>
+                </div>
+                <div class="px-1.5 text-center border-t border-[#1c3c31] pt-1.5">
+                    <span class="text-xs font-bold text-[#eacb67]">INT</span>
+                    <span class="text-xs font-bold text-gray-100">${s.int?.val||10} (${s.int?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.int?.rw||'+0'}</span>
+                </div>
+                <div class="px-1.5 text-center border-t border-[#1c3c31] pt-1.5">
+                    <span class="text-xs font-bold text-[#eacb67]">WEI</span>
+                    <span class="text-xs font-bold text-gray-100">${s.wei?.val||10} (${s.wei?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.wei?.rw||'+0'}</span>
+                </div>
+                <div class="px-1.5 text-center border-t border-[#1c3c31] pt-1.5">
+                    <span class="text-xs font-bold text-[#eacb67]">CHA</span>
+                    <span class="text-xs font-bold text-gray-100">${s.cha?.val||10} (${s.cha?.mod||'+0'})</span>
+                    <span class="text-[10px] text-gray-400 block sm:inline sm:ml-1">RW:${s.cha?.rw||'+0'}</span>
+                </div>
+            </div>
+
+            <div class="space-y-1 text-xs mt-3">
+                ${m.skills ? `<p><strong class="text-[#eacb67]">Fähigkeiten:</strong> <span class="text-gray-200">${m.skills}</span></p>` : ''}
+                ${m.equipment ? `<p><strong class="text-[#eacb67]">Ausrüstung:</strong> <span class="text-gray-200">${m.equipment}</span></p>` : ''}
+                ${m.resistances ? `<p><strong class="text-[#eacb67]">Resistenzen:</strong> <span class="text-gray-200">${m.resistances}</span></p>` : ''}
+                ${m.senses ? `<p><strong class="text-[#eacb67]">Sinne:</strong> <span class="text-gray-200">${m.senses}</span></p>` : ''}
+                ${m.languages ? `<p><strong class="text-[#eacb67]">Sprachen:</strong> <span class="text-gray-200">${m.languages}</span></p>` : ''}
+            </div>
+
+            ${traitsHtml}
+            ${actionsHtml}
+            ${bonusActionsHtml}
+            ${reactionsHtml}
+            ${tacticsHtml}
+            ${buttonsHtml}
+        `;
+    }
+
+    function addDynamicField(containerId, nameVal = '', descVal = '') {
+        const container = document.getElementById(containerId);
+        const row = document.createElement('div');
+        row.className = 'flex gap-2 items-center';
+        row.innerHTML = `
+            <input type="text" placeholder="Name" value="${nameVal}" class="dyn-name w-1/3 bg-forest-950 border border-forest-700 text-xs rounded p-1.5 text-gray-100 font-semibold">
+            <input type="text" placeholder="Beschreibung" value="${descVal}" class="dyn-desc flex-1 bg-forest-950 border border-forest-700 text-xs rounded p-1.5 text-gray-100">
+            <button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 px-2 text-xs">✕</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function renderMonstersTab() {
+        const activeGrid = document.getElementById('activeMonstersGrid');
+        const libraryGrid = document.getElementById('libraryMonstersGrid');
+        activeGrid.innerHTML = ''; libraryGrid.innerHTML = '';
+
+        state.monsters.forEach((m, index) => {
+            const isLib = m.category === 'library';
+            const card = document.createElement('div');
+            card.className = `draggable-item rounded-xl p-5 shadow-xl border transition-all ${isLib ? 'bg-[#0b1613]/80 border-gray-800 text-gray-400' : 'bg-[#0e211a] border-[#1f4236] text-gray-100'}`;
+            card.draggable = true;
+            card.dataset.index = index;
+
+            card.innerHTML = buildMonsterStatblockHTML(m, true, index);
+
+            card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); card.classList.add('dragging'); };
+            card.ondragend = () => { card.classList.remove('dragging'); };
+            card.ondragover = (e) => { e.preventDefault(); };
+            card.ondrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIdx = index;
+                if (!isNaN(fromIdx) && fromIdx !== toIdx) {
+                    const moved = state.monsters.splice(fromIdx, 1)[0];
+                    moved.category = m.category;
+                    state.monsters.splice(toIdx, 0, moved);
+                    saveState(); renderMonstersTab();
+                }
+            };
+
+            card.querySelector('.add-to-init-btn').onclick = () => {
+                addCombatantFromMonster(m);
+                showToast(`${m.name} zur Initiative hinzugefügt!`, 'success');
+            };
+            card.querySelector('.duplicate-btn').onclick = () => {
+                const dup = JSON.parse(JSON.stringify(m));
+                dup.id = 'm-' + Date.now();
+                dup.name = dup.name + ' (Kopie)';
+                state.monsters.splice(index + 1, 0, dup);
+                saveState(); renderMonstersTab(); showToast('Kreatur dupliziert!', 'success');
+            };
+            card.querySelector('.edit-btn').onclick = () => openMonsterModalForEdit(m);
+            card.querySelector('.delete-btn').onclick = () => {
+                if (confirm(`Möchtest du das Monster "${m.name}" wirklich löschen?`)) {
+                    state.monsters = state.monsters.filter(x => x.id !== m.id);
+                    saveState(); renderMonstersTab(); showToast('Monster gelöscht', 'info');
+                }
+            };
+
+            if (isLib) libraryGrid.appendChild(card);
+            else activeGrid.appendChild(card);
+        });
+    }
+
+    function dropMonsterContainer(e, category) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const idxStr = e.dataTransfer.getData('text/plain');
+        if (idxStr !== '') {
+            const fromIdx = parseInt(idxStr);
+            if (!isNaN(fromIdx) && state.monsters[fromIdx]) {
+                const moved = state.monsters.splice(fromIdx, 1)[0];
+                moved.category = category;
+                state.monsters.push(moved);
+                saveState(); renderMonstersTab();
+            }
+        }
+    }
+
+    function openMonsterModalForEdit(m = null) {
+        document.getElementById('monsterModalTitle').textContent = m ? 'Monster bearbeiten' : 'Neues Monster anlegen';
+        document.getElementById('monsterIdInput').value = m ? m.id : '';
+        document.getElementById('monsterNameInput').value = m ? m.name : '';
+        document.getElementById('monsterTypeInput').value = m ? m.type : '';
+        document.getElementById('monsterXpInput').value = m ? (m.xp || '') : '';
+        document.getElementById('monsterAcInput').value = m ? m.ac : 10;
+        document.getElementById('monsterHpInput').value = m ? m.hp : 10;
+        document.getElementById('monsterInitInput').value = m ? m.init : '+0';
+        document.getElementById('monsterSpeedInput').value = m ? m.speed : '9m';
+
+        const stats = m ? m.stats : {};
+        ['sta', 'ges', 'kon', 'int', 'wei', 'cha'].forEach(attr => {
+            document.getElementById(`m-${attr}-val`).value = stats[attr]?.val || 10;
+            document.getElementById(`m-${attr}-mod`).value = stats[attr]?.mod || '+0';
+            document.getElementById(`m-${attr}-rw`).value = stats[attr]?.rw || '+0';
+        });
+
+        document.getElementById('monsterSkillsInput').value = m ? (m.skills || '') : '';
+        document.getElementById('monsterEquipmentInput').value = m ? (m.equipment || '') : '';
+        document.getElementById('monsterResistancesInput').value = m ? (m.resistances || '') : '';
+        document.getElementById('monsterSensesInput').value = m ? (m.senses || '') : '';
+        document.getElementById('monsterLanguagesInput').value = m ? (m.languages || '') : '';
+        document.getElementById('monsterTraitsInput').value = m && m.traits ? m.traits.join('\n') : '';
+        document.getElementById('monsterTacticsInput').value = m ? m.tactics : '';
+        document.getElementById('monsterCategorySelect').value = m ? (m.category || 'active') : 'active';
+
+        document.getElementById('actionsContainer').innerHTML = '';
+        if (m && m.actions) m.actions.forEach(a => addDynamicField('actionsContainer', a.name, a.desc));
+
+        document.getElementById('bonusActionsContainer').innerHTML = '';
+        if (m && m.bonusActions) m.bonusActions.forEach(ba => addDynamicField('bonusActionsContainer', ba.name, ba.desc));
+
+        document.getElementById('reactionsContainer').innerHTML = '';
+        if (m && m.reactions) m.reactions.forEach(r => addDynamicField('reactionsContainer', r.name, r.desc));
+
+        const outlines = m ? (m.outlines || []) : [];
+        document.querySelectorAll('#outlineColorCheckboxes input').forEach(chk => {
+            chk.checked = outlines.includes(chk.value);
+        });
+
+        document.getElementById('monsterModal').classList.remove('hidden');
+    }
+
+    document.getElementById('openNewMonsterModalBtn').onclick = () => openMonsterModalForEdit(null);
+    document.querySelectorAll('.closeMonsterModalBtn').forEach(b => b.onclick = () => document.getElementById('monsterModal').classList.add('hidden'));
+
+    document.getElementById('monsterForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('monsterIdInput').value;
+        const selectedColors = Array.from(document.querySelectorAll('#outlineColorCheckboxes input:checked')).map(chk => chk.value);
+        const traitsArr = document.getElementById('monsterTraitsInput').value.split('\n').map(x => x.trim()).filter(Boolean);
+
+        const actionsArr = [];
+        document.querySelectorAll('#actionsContainer > div').forEach(row => {
+            const name = row.querySelector('.dyn-name').value.trim();
+            const desc = row.querySelector('.dyn-desc').value.trim();
+            if (name || desc) actionsArr.push({ name: name || 'Aktion', desc });
+        });
+
+        const bonusActionsArr = [];
+        document.querySelectorAll('#bonusActionsContainer > div').forEach(row => {
+            const name = row.querySelector('.dyn-name').value.trim();
+            const desc = row.querySelector('.dyn-desc').value.trim();
+            if (name || desc) bonusActionsArr.push({ name: name || 'Bonus-Aktion', desc });
+        });
+
+        const reactionsArr = [];
+        document.querySelectorAll('#reactionsContainer > div').forEach(row => {
+            const name = row.querySelector('.dyn-name').value.trim();
+            const desc = row.querySelector('.dyn-desc').value.trim();
+            if (name || desc) reactionsArr.push({ name: name || 'Reaktion', desc });
+        });
+
+        const monsterObj = {
+            id: id || 'm-' + Date.now(),
+            name: document.getElementById('monsterNameInput').value,
+            type: document.getElementById('monsterTypeInput').value || 'Kreatur',
+            xp: document.getElementById('monsterXpInput').value || '0',
+            ac: parseInt(document.getElementById('monsterAcInput').value) || 10,
+            hp: parseInt(document.getElementById('monsterHpInput').value) || 10,
+            init: document.getElementById('monsterInitInput').value || '+0',
+            speed: document.getElementById('monsterSpeedInput').value || '9m',
+            stats: {
+                sta: { val: parseInt(document.getElementById('m-sta-val').value)||10, mod: document.getElementById('m-sta-mod').value||'+0', rw: document.getElementById('m-sta-rw').value||'+0' },
+                ges: { val: parseInt(document.getElementById('m-ges-val').value)||10, mod: document.getElementById('m-ges-mod').value||'+0', rw: document.getElementById('m-ges-rw').value||'+0' },
+                kon: { val: parseInt(document.getElementById('m-kon-val').value)||10, mod: document.getElementById('m-kon-mod').value||'+0', rw: document.getElementById('m-kon-rw').value||'+0' },
+                int: { val: parseInt(document.getElementById('m-int-val').value)||10, mod: document.getElementById('m-int-mod').value||'+0', rw: document.getElementById('m-int-rw').value||'+0' },
+                wei: { val: parseInt(document.getElementById('m-wei-val').value)||10, mod: document.getElementById('m-wei-mod').value||'+0', rw: document.getElementById('m-wei-rw').value||'+0' },
+                cha: { val: parseInt(document.getElementById('m-cha-val').value)||10, mod: document.getElementById('m-cha-mod').value||'+0', rw: document.getElementById('m-cha-rw').value||'+0' }
+            },
+            skills: document.getElementById('monsterSkillsInput').value,
+            equipment: document.getElementById('monsterEquipmentInput').value,
+            resistances: document.getElementById('monsterResistancesInput').value,
+            senses: document.getElementById('monsterSensesInput').value,
+            languages: document.getElementById('monsterLanguagesInput').value,
+            traits: traitsArr,
+            actions: actionsArr,
+            bonusActions: bonusActionsArr,
+            reactions: reactionsArr,
+            tactics: document.getElementById('monsterTacticsInput').value,
+            category: document.getElementById('monsterCategorySelect').value,
+            outlines: selectedColors
+        };
+
+        if (id) {
+            const idx = state.monsters.findIndex(x => x.id === id);
+            if (idx !== -1) state.monsters[idx] = monsterObj;
+        } else {
+            state.monsters.unshift(monsterObj);
+        }
+        saveState(); document.getElementById('monsterModal').classList.add('hidden'); renderMonstersTab(); showToast('Monster gespeichert!', 'success');
+    };
+
+    function renderNodesTab() {
+        const container = document.getElementById('nodesGraphContainer');
+        container.innerHTML = '';
+        state.nodes.forEach((node, index) => {
+            const card = document.createElement('div');
+            card.className = `draggable-item p-4 rounded-xl border flex flex-col justify-between space-y-3 ${node.status==='active'?'border-gold-500 bg-forest-900 shadow-lg':node.status==='completed'?'border-green-800/80 bg-forest-950/60 opacity-80':'border-forest-700 bg-forest-900/60'}`;
+            card.draggable = true;
+            card.dataset.index = index;
+
+            card.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-center border-b border-forest-800 pb-2 mb-2">
+                        <h3 class="font-cinzel text-sm font-bold text-gray-100">${node.title}</h3>
+                        <select onchange="updateNodeStatus('${node.id}', this.value)" onclick="event.stopPropagation()" class="bg-forest-950 text-gold-400 border border-forest-700 text-[10px] rounded p-1">
+                            <option value="planned" ${node.status==='planned'?'selected':''}>Geplant</option>
+                            <option value="active" ${node.status==='active'?'selected':''}>Aktive Szene</option>
+                            <option value="completed" ${node.status==='completed'?'selected':''}>Abgeschlossen</option>
+                            <option value="bypassed" ${node.status==='bypassed'?'selected':''}>Übersprungen</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-gray-300">${node.description}</p>
+                    ${node.clues ? `<p class="text-[11px] text-gold-300 mt-1"><strong>Hinweis:</strong> ${node.clues}</p>` : ''}
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-forest-800/60">
+                    <button class="edit-node text-xs text-gold-400">✏️ Bearbeiten</button>
+                    <button class="delete-node text-xs text-red-400">🗑️ Löschen</button>
+                </div>
+            `;
+
+            card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); card.classList.add('dragging'); };
+            card.ondragend = () => { card.classList.remove('dragging'); };
+            card.ondragover = (e) => { e.preventDefault(); };
+            card.ondrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIdx = index;
+                if (!isNaN(fromIdx) && fromIdx !== toIdx) {
+                    const moved = state.nodes.splice(fromIdx, 1)[0];
+                    state.nodes.splice(toIdx, 0, moved);
+                    saveState(); renderNodesTab();
+                }
+            };
+
+            card.querySelector('.edit-node').onclick = () => openNodeModalForEdit(node);
+            card.querySelector('.delete-node').onclick = () => {
+                if (confirm(`Szene "${node.title}" wirklich löschen?`)) {
+                    state.nodes = state.nodes.filter(n => n.id !== node.id);
+                    saveState(); renderNodesTab();
+                }
+            };
+            container.appendChild(card);
+        });
+    }
+
+    function updateNodeStatus(id, newStatus) {
+        const node = state.nodes.find(n => n.id === id);
+        if (node) {
+            node.status = newStatus;
+            saveState(); renderNodesTab();
+        }
+    }
+
+    function dropNodeContainer(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const idxStr = e.dataTransfer.getData('text/plain');
+        if (idxStr !== '') {
+            const fromIdx = parseInt(idxStr);
+            if (!isNaN(fromIdx) && state.nodes[fromIdx]) {
+                const moved = state.nodes.splice(fromIdx, 1)[0];
+                state.nodes.push(moved);
+                saveState(); renderNodesTab();
+            }
+        }
+    }
+
+    function openNodeModalForEdit(n = null) {
+        document.getElementById('nodeModalTitle').textContent = n ? 'Szene bearbeiten' : 'Neue Szene hinzufügen';
+        document.getElementById('nodeIdInput').value = n ? n.id : '';
+        document.getElementById('nodeTitleInput').value = n ? n.title : '';
+        document.getElementById('nodeDescInput').value = n ? n.description : '';
+        document.getElementById('nodeCluesInput').value = n ? n.clues : '';
+        document.getElementById('nodeModal').classList.remove('hidden');
+    }
+
+    document.getElementById('addNodeBtn').onclick = () => openNodeModalForEdit(null);
+    document.querySelectorAll('.closeNodeModalBtn').forEach(b => b.onclick = () => document.getElementById('nodeModal').classList.add('hidden'));
+
+    document.getElementById('nodeForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('nodeIdInput').value;
+        const nodeObj = {
+            id: id || 'n-' + Date.now(),
+            title: document.getElementById('nodeTitleInput').value,
+            status: id ? (state.nodes.find(x => x.id === id)?.status || 'planned') : 'planned',
+            description: document.getElementById('nodeDescInput').value,
+            clues: document.getElementById('nodeCluesInput').value
+        };
+        if (id) {
+            const idx = state.nodes.findIndex(x => x.id === id);
+            if (idx !== -1) state.nodes[idx] = nodeObj;
+        } else {
+            state.nodes.push(nodeObj);
+        }
+        saveState(); document.getElementById('nodeModal').classList.add('hidden'); renderNodesTab(); showToast('Szene gespeichert!', 'success');
+    };
+
+    function adjustSquareSize(val) { document.documentElement.style.setProperty('--square-size', `${val}px`); }
+    function sortCombatants() { if (!state.combatants) state.combatants = []; state.combatants.sort((a, b) => b.init - a.init); }
+
+    function addCombatant(name = 'Neuer Held', init = 10, maxHp = 30, fullMonsterData = null) {
+        if (!state.combatants) state.combatants = [];
+        const id = Date.now().toString();
+        state.combatants.push({ id, name, init: Number(init), hp: Number(maxHp), maxHp: Number(maxHp), tempHp: 0, img: '', conditions: [], history: ['Erstellt'], monsterData: fullMonsterData });
+        sortCombatants(); state.activeId = id; saveState(); renderInitiativeTab();
+    }
+
+    function addCombatantFromMonster(m) {
+        addCombatant(m.name, parseInt(m.init) || 10, m.hp, m);
+    }
+
+    function removeCombatant(id, e) { if(e) e.stopPropagation(); state.combatants = state.combatants.filter(c => c.id !== id); saveState(); renderInitiativeTab(); }
+    function setActive(id) { state.activeId = id; saveState(); renderInitiativeTab(); }
+
+    function commitMaxHp(id, val) {
+        const c = state.combatants.find(x => x.id === id);
+        if (c) {
+            const newMax = Math.max(0, parseInt(val) || 0);
+            c.maxHp = newMax;
+            c.hp = newMax;
+            saveState();
+            renderInitiativeTab();
+        }
+    }
+
+    function handleCurrentHpInput(id, val) { const c = state.combatants.find(x => x.id === id); if(c){ c.hp = Math.max(0, parseInt(val)||0); saveState(); } }
+    function handleInitInput(id, val) { const c = state.combatants.find(x => x.id === id); if(c){ c.init = parseInt(val)||0; saveState(); } }
+    function finalizeInitChange() { sortCombatants(); saveState(); renderInitiativeTab(); }
+    function resetToFullHp(id) { const c = state.combatants.find(x => x.id === id); if(c){ c.hp = c.maxHp; saveState(); renderInitiativeTab(); } }
+    function applyDamage(id) { const c = state.combatants.find(x => x.id === id); const v = parseInt(document.getElementById(`val-${id}`).value)||0; if(v>0){ c.hp = Math.max(0, c.hp - v); c.history.unshift(`-${v}`); saveState(); renderInitiativeTab(); } }
+    function applyHeal(id) { const c = state.combatants.find(x => x.id === id); const v = parseInt(document.getElementById(`val-${id}`).value)||0; if(v>0){ c.hp = Math.min(c.maxHp, c.hp + v); c.history.unshift(`+${v}`); saveState(); renderInitiativeTab(); } }
+    function addTempHp(id) { const c = state.combatants.find(x => x.id === id); const v = parseInt(document.getElementById(`val-${id}`).value)||0; if(v>0){ c.tempHp = v; c.history.unshift(`+${v} Temp`); saveState(); renderInitiativeTab(); } }
+    function toggleCondition(cid, condId) { const c = state.combatants.find(x => x.id === cid); if(!c) return; if(!c.conditions) c.conditions=[]; const idx = c.conditions.indexOf(condId); if(idx>-1) c.conditions.splice(idx,1); else c.conditions.push(condId); saveState(); renderInitiativeTab(); }
+    function resetAllLogs() { state.combatants.forEach(c => c.history = []); saveState(); renderInitiativeTab(); }
+    function handleImageUpload(id, input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const c = state.combatants.find(x => x.id === id); if(c){ c.img = e.target.result; saveState(); renderInitiativeTab(); } }; reader.readAsDataURL(input.files[0]); } }
+    function updateName(id, val) { const c = state.combatants.find(x => x.id === id); if(c){ c.name = val; saveState(); } }
+    function resetTracker() { if(confirm('Alles löschen?')){ state.combatants = []; state.activeId = null; saveState(); renderInitiativeTab(); } }
+
+    function renderInitiativeTab() {
+        const listEl = document.getElementById('tracker-list');
+        if (!listEl) return;
+        listEl.innerHTML = ''; sortCombatants();
+        if (!state.activeId && state.combatants.length > 0) state.activeId = state.combatants[0].id;
+
+        const activeCombatant = state.combatants.find(x => x.id === state.activeId);
+        let activeStatHTML = `<div class="text-center py-10 text-gray-400 text-xs italic">Klicke links auf eine Kreatur, um ihren vollständigen Statblock hier anzuzeigen.</div>`;
+
+        if (activeCombatant) {
+            if (activeCombatant.monsterData) {
+                activeStatHTML = buildMonsterStatblockHTML(activeCombatant.monsterData, false);
+            } else {
+                activeStatHTML = `
+                    <div class="space-y-3">
+                        <h3 class="font-cinzel text-lg font-bold text-gold-400">${activeCombatant.name}</h3>
+                        <p class="text-xs text-gray-400">Initiative: ${activeCombatant.init} | TP: ${activeCombatant.hp}/${activeCombatant.maxHp}</p>
+                        <p class="text-xs text-gray-500 italic">Kein hinterlegter Monster-Statblock (Standard-Charakter).</p>
+                    </div>
+                `;
+            }
+        }
+        document.getElementById('selectedCombatantCardContainer').innerHTML = activeStatHTML;
+
+        state.combatants.forEach(c => {
+            if(!c.conditions) c.conditions=[]; if(!c.history) c.history=[];
+            const isActive = c.id === state.activeId;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col gap-2';
+
+            const card = document.createElement('div');
+            card.className = `combatant-card ${isActive ? 'is-active' : ''}`;
+            card.onclick = () => setActive(c.id);
+
+            const conditionsHtml = CONDITIONS.map(cond => `<button class="condition-btn ${c.conditions.includes(cond.id)?'active':''}" style="--cond-color:${cond.color}; --cond-text:${cond.textOnActive};" onclick="event.stopPropagation(); toggleCondition('${c.id}','${cond.id}')">${cond.name}</button>`).join('');
+
+            card.innerHTML = `
+                <div class="init-badge" onclick="event.stopPropagation()"><label>INIT</label><input type="number" value="${c.init}" oninput="handleInitInput('${c.id}', this.value)" onchange="finalizeInitChange()" /></div>
+                <div class="character-square-container" onclick="event.stopPropagation()">
+                    <div class="character-square ${!c.img?'empty':''}">${c.img?`<img src="${c.img}"/>`:'<span>👤</span>'}<div class="upload-hint">📷 Bild</div><input type="file" accept="image/*" onchange="handleImageUpload('${c.id}', this)" onclick="event.stopPropagation()"/></div>
+                    <input type="text" class="name-input" value="${c.name}" oninput="updateName('${c.id}', this.value)" onclick="event.stopPropagation()"/>
+                </div>
+                <div class="hp-section" onclick="event.stopPropagation()">
+                    <div class="hp-stats">
+                        <span class="hp-display">❤️ <input type="number" class="hp-number-input" value="${c.hp}" oninput="handleCurrentHpInput('${c.id}', this.value)"/> / <input type="number" class="max-hp-input" value="${c.maxHp}" onchange="commitMaxHp('${c.id}', this.value)" onkeydown="if(event.key==='Enter') this.blur()"/></span>
+                        <button class="btn-full-hp" onclick="resetToFullHp('${c.id}')">Full</button>
+                    </div>
+                    <div class="hp-inputs">
+                        <input type="number" id="val-${c.id}" placeholder="Wert" min="1"/>
+                        <div class="hp-buttons">
+                            <button onclick="applyDamage('${c.id}')" class="btn-dmg">- Dmg</button>
+                            <button onclick="applyHeal('${c.id}')" class="btn-heal">+ Heal</button>
+                            <button onclick="addTempHp('${c.id}')" class="btn-temp">+ Temp</button>
+                        </div>
+                    </div>
+                    <div class="history-container"><div class="history-header">VERLAUF</div><div class="history-box">${c.history.map(h=>`<div class="history-entry">${h}</div>`).join('')}</div></div>
+                </div>
+                <div class="conditions-section" onclick="event.stopPropagation()"><div class="conditions-header">Zustände</div><div class="conditions-grid">${conditionsHtml}</div></div>
+                <div class="card-actions"><button onclick="removeCombatant('${c.id}', event)">✕</button></div>
+            `;
+            wrapper.appendChild(card);
+            listEl.appendChild(wrapper);
+        });
+    }
+
+    document.getElementById('resetDataBtn').onclick = () => { if(confirm('Alles zurücksetzen?')){ localStorage.clear(); location.reload(); } };
+
+    window.onload = function() {
+        loadState();
+        initTheme();
+        initTabs();
+        renderAuftaktTab();
+        renderSecretsTab();
+        fullNameGeneratorReset();
+        renderNPCsTab();
+        renderMonstersTab();
+        renderNodesTab();
+        renderInitiativeTab();
+        showToast('Sylvanus Spielleiter-Codex bereit.', 'success');
+    };
+</script>
+</body>
+</html>
