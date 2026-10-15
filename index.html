@@ -423,11 +423,26 @@
 
     <!-- TAB 4: NPCS -->
     <section id="tab-rollendeck" class="tab-content hidden space-y-6">
-        <div class="flex justify-between items-center bg-forest-900/60 p-4 rounded-xl border border-forest-700/40 gap-4 flex-wrap">
-            <input id="npcSearchInput" type="text" placeholder="NPC suchen..." class="bg-forest-950 text-xs rounded-lg px-3 py-2 border border-forest-700 text-gray-200 w-64">
-            <button id="openNewNpcModalBtn" class="px-4 py-2 bg-gold-500 text-forest-950 font-semibold text-xs rounded-lg">+ Neuer NPC</button>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-forest-900/60 p-4 rounded-xl border border-forest-700/40">
+            <div>
+                <h2 class="font-cinzel text-xl font-bold text-gold-400">Personen & Nicht-Spieler-Charaktere (NPCs)</h2>
+                <p class="text-xs text-gray-400">Klicke auf eine Karte, um sie vollständig einzusehen. Organisiere NPCs in Aktiv oder Bibliothek.</p>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <input id="npcSearchInput" type="text" placeholder="NPC suchen (Name, Rasse, Beruf, Ort)..." class="bg-forest-950 text-xs rounded-lg px-3 py-2 border border-forest-700 text-gray-200 w-64 focus:ring-1 focus:ring-gold-500">
+                <button id="openNewNpcModalBtn" class="px-4 py-2 bg-gold-500 hover:bg-gold-400 text-forest-950 font-semibold text-xs rounded-lg transition-all shadow-md">+ Neuer NPC</button>
+            </div>
         </div>
-        <div id="npcCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+        <div class="space-y-3">
+            <h3 class="font-cinzel text-md font-bold text-gold-400 border-b border-gold-500/20 pb-1">🎭 Aktive NPCs</h3>
+            <div id="activeNpcCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-h-[120px] p-2 rounded-xl" ondragover="event.preventDefault()" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="dropNpcContainer(event, 'active')"></div>
+        </div>
+
+        <div class="space-y-3 pt-4">
+            <h3 class="font-cinzel text-md font-bold text-gray-400 border-b border-gray-700/40 pb-1">📚 Bibliothek (Archiv)</h3>
+            <div id="libraryNpcCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-h-[120px] p-2 rounded-xl bg-forest-950/30 border border-dashed border-forest-800" ondragover="event.preventDefault()" ondragleave="event.currentTarget.classList.remove('drag-over')" ondrop="dropNpcContainer(event, 'library')"></div>
+        </div>
     </section>
 
     <!-- TAB 5: MONSTER & KAMPF -->
@@ -524,23 +539,67 @@
 
 <!-- MODAL: NPC -->
 <div id="npcModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-forest-900 border border-gold-500/40 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+    <div class="bg-forest-900 border border-gold-500/40 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between border-b border-gold-500/20 pb-3">
             <h3 id="npcModalTitle" class="font-cinzel text-lg font-bold text-gold-400">NPC anlegen</h3>
             <button class="closeModalBtn text-gray-400 hover:text-white">✕</button>
         </div>
-        <form id="npcForm" class="space-y-3">
+        <form id="npcForm" class="space-y-3.5">
             <input type="hidden" id="npcIdInput">
-            <input id="npcNameInput" type="text" required placeholder="Name" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcRoleInput" type="text" placeholder="Rolle" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcLocationInput" type="text" placeholder="Ort" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcVisualInput" type="text" placeholder="Optischer Anker" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcVoiceInput" type="text" placeholder="Stimme" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcGoalInput" type="text" placeholder="Motivation" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <input id="npcSecretInput" type="text" placeholder="Geheimnis" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100">
-            <div class="flex justify-end space-x-2 pt-2">
-                <button type="button" class="closeModalBtn px-4 py-2 bg-forest-800 text-gray-300 text-xs rounded-lg">Abbrechen</button>
-                <button type="submit" class="px-4 py-2 bg-gold-500 text-forest-950 font-bold text-xs rounded-lg">Speichern</button>
+
+            <div class="bg-forest-950/60 p-3 rounded-lg border border-forest-700/50">
+                <label class="block text-xs text-gold-400 font-bold mb-1">Kategorie</label>
+                <select id="npcCategorySelect" class="w-full bg-forest-900 text-gray-200 border border-forest-700 text-xs rounded p-2 focus:outline-none focus:border-gold-500">
+                    <option value="active">🎭 Aktiv</option>
+                    <option value="library">📚 Bibliothek (Archiv)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Name</label>
+                    <input id="npcNameInput" type="text" required class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Valeria Frostglut">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Rasse</label>
+                    <input id="npcRaceInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Mensch, Tiefling, Elf...">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Beruf</label>
+                    <input id="npcRoleInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Schmied, Diplomat, Söldner...">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1">Ort</label>
+                    <input id="npcLocationInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Silber-Zitadelle, Taverne...">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Optischer Anker</label>
+                <input id="npcVisualInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Monokel, Brandnarbe, Gehstock...">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Stimme</label>
+                <input id="npcVoiceInput" type="text" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="z. B. Leise, heiser, melodisch...">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Motivation</label>
+                <textarea id="npcGoalInput" rows="2" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="Was treibt den NPC an?"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-300 mb-1">Geheimnis</label>
+                <textarea id="npcSecretInput" rows="2" class="w-full bg-forest-950 border border-forest-700 text-xs rounded-lg p-2.5 text-gray-100 focus:outline-none focus:border-gold-500" placeholder="Versteckte Absicht, finsteres Geheimnis..."></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-forest-800">
+                <button type="button" class="closeModalBtn px-4 py-2 bg-forest-800 text-gray-300 text-xs rounded-lg hover:bg-forest-700 transition-colors">Abbrechen</button>
+                <button type="submit" class="px-4 py-2 bg-gold-500 text-forest-950 font-bold text-xs rounded-lg hover:bg-gold-400 transition-colors shadow-md">Speichern</button>
             </div>
         </form>
     </div>
@@ -711,7 +770,7 @@
     ];
 
     const DEFAULT_NPCS = [
-        { id: 'npc-1', name: 'Valeria Frostglut', role: 'Tiefling Diplomat', location: 'Silber-Zitadelle', visual: 'Monokel', voice: 'Leise', goal: 'Handelspakt erzwingen', secret: 'Waffenhandel' }
+        { id: 'npc-1', name: 'Valeria Frostglut', rasse: 'Tiefling', race: 'Tiefling', beruf: 'Diplomatin', role: 'Diplomatin', location: 'Silber-Zitadelle', visual: 'Monokel aus geschliffenem Rubin', voice: 'Leise, bestimmt und melodisch', goal: 'Handelspakt für ihr Haus erzwingen', secret: 'Heimlicher Waffenhandel mit Rebellen', category: 'active' }
     ];
 
     const DEFAULT_MONSTERS = [
@@ -815,15 +874,51 @@
         activeId: '1'
     };
 
+    function normalizeNpc(n) {
+        if (!n) return null;
+        const beruf = n.beruf !== undefined ? n.beruf : (n.role || '');
+        const rasse = n.rasse !== undefined ? n.rasse : (n.race || '');
+        return {
+            id: n.id || 'npc-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            name: n.name || 'Unbenannter NPC',
+            rasse: rasse,
+            race: rasse, // backwards compatibility with older backups
+            beruf: beruf,
+            role: beruf, // backwards compatibility with older backups
+            location: n.location || '',
+            visual: n.visual || '',
+            voice: n.voice || '',
+            goal: n.goal || '',
+            secret: n.secret || '',
+            category: n.category || 'active'
+        };
+    }
+
     function loadState() {
         try {
-            const saved = localStorage.getItem('sylvanus_codex_data_v17');
-            if (saved) state = { ...state, ...JSON.parse(saved) };
+            let saved = localStorage.getItem('sylvanus_codex_data_v18');
+            if (!saved) {
+                saved = localStorage.getItem('sylvanus_codex_data_v17');
+            }
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                state = { ...state, ...parsed };
+                if (Array.isArray(state.npcs)) {
+                    state.npcs = state.npcs.map(normalizeNpc).filter(Boolean);
+                }
+                if (Array.isArray(state.monsters)) {
+                    state.monsters = state.monsters.map(m => ({ ...m, category: m.category || 'active' }));
+                }
+            }
         } catch (e) { console.error(e); }
     }
 
     function saveState() {
-        try { localStorage.setItem('sylvanus_codex_data_v17', JSON.stringify(state)); } catch (e) { console.error(e); }
+        try {
+            const serialized = JSON.stringify(state);
+            localStorage.setItem('sylvanus_codex_data_v18', serialized);
+            localStorage.setItem('sylvanus_codex_data_v17', serialized);
+        } catch (e) { console.error(e); }
     }
 
     function exportData() {
@@ -838,7 +933,14 @@
             reader.readAsText(event.target.files[0], "UTF-8");
             reader.onload = function(e) {
                 try {
-                    state = { ...state, ...JSON.parse(e.target.result) };
+                    const imported = JSON.parse(e.target.result);
+                    state = { ...state, ...imported };
+                    if (Array.isArray(state.npcs)) {
+                        state.npcs = state.npcs.map(normalizeNpc).filter(Boolean);
+                    }
+                    if (Array.isArray(state.monsters)) {
+                        state.monsters = state.monsters.map(m => ({ ...m, category: m.category || 'active' }));
+                    }
                     saveState();
                     showToast("Import erfolgreich! Lade neu...", "success");
                     setTimeout(() => {
@@ -1066,62 +1168,308 @@
 
     function transferNameToNPC() {
         const fullName = `${currentFirstName} ${currentLastName}`;
+        const raceVal = document.getElementById('nameGenRaceSelect').value;
+        const raceMap = {
+            mensch: 'Mensch', elf: 'Elf', tiefling: 'Tiefling', zwerg: 'Zwerg', gnom: 'Gnom', ork: 'Ork', halbling: 'Halbling'
+        };
         openNpcModalForEdit(null);
         document.getElementById('npcNameInput').value = fullName;
+        document.getElementById('npcRaceInput').value = raceMap[raceVal] || raceVal;
     }
 
     document.getElementById('nameGenRaceSelect').onchange = fullNameGeneratorReset;
     document.getElementById('nameGenGenderSelect').onchange = fullNameGeneratorReset;
 
+    const expandedNpcIds = new Set();
+
+    function toggleNpcExpanded(id) {
+        if (expandedNpcIds.has(id)) {
+            expandedNpcIds.delete(id);
+        } else {
+            expandedNpcIds.add(id);
+        }
+        renderNPCsTab();
+    }
+
+    function getNextNpcName(sourceName, category = 'active') {
+        if (!sourceName) return 'NPC';
+        let cleaned = sourceName.replace(/\s*\(Kopie(\s*\d+)?\)$/i, '').trim();
+        const numMatch = cleaned.match(/^(.+?)\s+(\d+)$/);
+        if (numMatch) {
+            const baseName = numMatch[1].trim();
+            const existing = state.npcs.filter(x => x.category === category);
+            const numbers = [];
+            const safeBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            existing.forEach(n => {
+                const trimmed = n.name.trim();
+                const m = trimmed.match(new RegExp(`^${safeBase}\\s+(\\d+)$`, 'i'));
+                if (m) {
+                    numbers.push(parseInt(m[1], 10));
+                }
+            });
+            const nextNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 2;
+            return `${baseName} ${nextNum}`;
+        }
+        const copyBase = `${sourceName} (Kopie)`;
+        const existing = state.npcs.filter(x => x.name.startsWith(sourceName));
+        if (existing.some(x => x.name === copyBase)) {
+            let counter = 2;
+            while (existing.some(x => x.name === `${sourceName} (Kopie ${counter})`)) {
+                counter++;
+            }
+            return `${sourceName} (Kopie ${counter})`;
+        }
+        return copyBase;
+    }
+
     function renderNPCsTab() {
-        const grid = document.getElementById('npcCardsGrid');
-        grid.innerHTML = '';
-        const query = document.getElementById('npcSearchInput').value.toLowerCase();
+        const activeGrid = document.getElementById('activeNpcCardsGrid');
+        const libraryGrid = document.getElementById('libraryNpcCardsGrid');
+        if (!activeGrid || !libraryGrid) return;
+        activeGrid.innerHTML = '';
+        libraryGrid.innerHTML = '';
 
-        const filtered = state.npcs.filter(n =>
-            n.name.toLowerCase().includes(query) ||
-            (n.role && n.role.toLowerCase().includes(query)) ||
-            (n.location && n.location.toLowerCase().includes(query))
-        );
+        const query = (document.getElementById('npcSearchInput')?.value || '').toLowerCase().trim();
 
-        filtered.forEach(n => {
+        state.npcs.forEach((n, index) => {
+            const isLib = n.category === 'library';
+            const isExpanded = expandedNpcIds.has(n.id);
+
+            // Filter match check
+            const matchesQuery = !query ||
+                (n.name && n.name.toLowerCase().includes(query)) ||
+                (n.rasse && n.rasse.toLowerCase().includes(query)) ||
+                (n.race && n.race.toLowerCase().includes(query)) ||
+                (n.beruf && n.beruf.toLowerCase().includes(query)) ||
+                (n.role && n.role.toLowerCase().includes(query)) ||
+                (n.location && n.location.toLowerCase().includes(query)) ||
+                (n.goal && n.goal.toLowerCase().includes(query)) ||
+                (n.visual && n.visual.toLowerCase().includes(query)) ||
+                (n.secret && n.secret.toLowerCase().includes(query));
+
+            if (!matchesQuery) return;
+
             const card = document.createElement('div');
-            card.className = 'bg-forest-900/80 border border-forest-700/60 rounded-xl p-4 shadow-md text-xs space-y-2 flex flex-col justify-between';
-            card.innerHTML = `
-                <div>
-                    <h3 class="font-cinzel text-base font-bold text-gold-400">${n.name}</h3>
-                    <p class="text-gray-400">${n.role || 'Keine Rolle'}</p>
-                    ${n.location ? `<p class="text-gray-300 mt-1"><strong>Ort:</strong> ${n.location}</p>` : ''}
-                    ${n.goal ? `<p class="text-gray-300 mt-1"><strong>Ziel:</strong> ${n.goal}</p>` : ''}
-                </div>
-                <div class="flex justify-end gap-3 pt-2 border-t border-forest-800">
-                    <button class="edit-npc text-gold-400 hover:text-gold-300">✏️ Bearbeiten</button>
-                    <button class="delete-npc text-red-400 hover:text-red-300">🗑️ Löschen</button>
-                </div>
-            `;
-            card.querySelector('.edit-npc').onclick = () => openNpcModalForEdit(n);
-            card.querySelector('.delete-npc').onclick = () => {
-                if (confirm(`NPC "${n.name}" wirklich löschen?`)) {
-                    state.npcs = state.npcs.filter(x => x.id !== n.id);
+            card.className = `draggable-item rounded-xl p-4 shadow-xl transition-all ${isLib ? 'bg-[#0b1613]/90 text-gray-300 border border-gray-700/60' : 'bg-[#0e211a] text-gray-100 border border-[#1f4236]'}`;
+            card.draggable = true;
+            card.dataset.index = index;
+
+            const rasseText = n.rasse || n.race || 'Unbekannt';
+            const berufText = n.beruf || n.role || 'Kein Beruf';
+
+            if (isLib) {
+                // Bibliothek (Archiv) Card
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-2 cursor-pointer card-header-click" title="Klicken, um NPC ${isExpanded ? 'einzuklappen' : 'vollständig anzuzeigen'}">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-cinzel text-lg font-bold tracking-wide text-gray-200 uppercase truncate">${n.name}</h3>
+                                <span class="text-[10px] text-gray-400 bg-forest-950/70 border border-forest-800 px-2 py-0.5 rounded font-sans">${isExpanded ? '▲ Einklappen' : '▼ Details'}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
+                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-300 border border-forest-800 font-medium">👤 ${rasseText}</span>
+                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-400 border border-forest-800">💼 ${berufText}</span>
+                            </div>
+                        </div>
+                        <div class="bg-[#1b2f27] text-gray-400 border border-gray-700 text-[10px] font-bold px-2 py-1 rounded flex-shrink-0">
+                            Archiv
+                        </div>
+                    </div>
+
+                    <div class="mt-2.5 space-y-1 text-xs cursor-pointer card-summary-click" title="Klicken, um Details ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">📍 Ort:</strong> ${n.location || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">🎯 Ziel:</strong> ${n.goal || '—'}</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-forest-800/60">
+                        <button class="add-to-active-btn text-xs px-3 py-1.5 bg-[#d4af37] hover:bg-[#eacb67] text-[#0b1814] font-bold rounded-md flex items-center gap-1 transition-all shadow-md" title="Zu aktiven NPCs verschieben">➕ Zu Aktiv</button>
+                        <button class="duplicate-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-gray-300 rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Duplizieren">📋 Kopie</button>
+                        <button class="edit-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Bearbeiten">✏️ Bearbeiten</button>
+                        <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all" title="Löschen">🗑️</button>
+                    </div>
+
+                    <div class="npc-details ${isExpanded ? 'block' : 'hidden'} pt-3 border-t border-forest-800/40 mt-3 space-y-2 text-xs">
+                        ${n.visual ? `<p><strong class="text-[#eacb67]">👁️ Optischer Anker:</strong> <span class="text-gray-300">${n.visual}</span></p>` : ''}
+                        ${n.voice ? `<p><strong class="text-[#eacb67]">🗣️ Stimme:</strong> <span class="text-gray-300">${n.voice}</span></p>` : ''}
+                        ${n.secret ? `
+                            <div class="bg-[#081511] border border-[#1b3d32] rounded-lg p-2.5 mt-2">
+                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">🤫 GEHEIMNIS:</h4>
+                                <p class="text-xs text-gray-300 leading-relaxed">${n.secret}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                card.querySelector('.card-header-click').onclick = () => toggleNpcExpanded(n.id);
+                card.querySelector('.card-summary-click').onclick = () => toggleNpcExpanded(n.id);
+
+                card.querySelector('.add-to-active-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    n.category = 'active';
                     saveState();
                     renderNPCsTab();
-                    showToast('NPC gelöscht', 'info');
+                    showToast(`"${n.name}" zu aktiven NPCs verschoben!`, 'success');
+                };
+
+                card.querySelector('.duplicate-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const dup = JSON.parse(JSON.stringify(n));
+                    dup.id = 'npc-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    dup.category = 'library';
+                    dup.name = getNextNpcName(n.name, 'library');
+                    state.npcs.splice(index + 1, 0, dup);
+                    saveState();
+                    renderNPCsTab();
+                    showToast(`"${dup.name}" erstellt!`, 'success');
+                };
+
+                card.querySelector('.edit-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    openNpcModalForEdit(n);
+                };
+
+                card.querySelector('.delete-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Möchtest du den NPC "${n.name}" wirklich aus der Bibliothek löschen?`)) {
+                        state.npcs = state.npcs.filter(x => x.id !== n.id);
+                        expandedNpcIds.delete(n.id);
+                        saveState();
+                        renderNPCsTab();
+                        showToast('NPC aus Bibliothek gelöscht', 'info');
+                    }
+                };
+
+                libraryGrid.appendChild(card);
+            } else {
+                // Aktive NPCs Card
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-2 cursor-pointer card-header-click" title="Klicken, um NPC ${isExpanded ? 'einzuklappen' : 'vollständig anzuzeigen'}">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-cinzel text-lg font-bold tracking-wide text-[#eacb67] uppercase truncate">${n.name}</h3>
+                                <span class="text-[10px] text-[#eacb67] bg-[#1a382d] border border-gold-500/30 px-2 py-0.5 rounded font-sans">${isExpanded ? '▲ Einklappen' : '▼ Details'}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
+                                <span class="px-2 py-0.5 rounded bg-gold-500/15 text-gold-300 font-semibold border border-gold-500/30">👤 ${rasseText}</span>
+                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-200 border border-forest-800">💼 ${berufText}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2.5 space-y-1 text-xs cursor-pointer card-summary-click" title="Klicken, um Details ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">📍 Ort:</strong> ${n.location || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">🎯 Ziel:</strong> ${n.goal || '—'}</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-[#1b3d32]/60">
+                        <button class="move-to-lib-btn text-xs px-2.5 py-1.5 bg-[#18362b] hover:bg-[#254d3e] text-[#97c7b2] hover:text-[#eacb67] font-medium rounded-md border border-forest-700/60 flex items-center gap-1 transition-all" title="In Bibliothek (Archiv) verschieben">📚 Zur Bibliothek</button>
+                        <button class="duplicate-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-gray-300 rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Duplizieren">📋 Kopie</button>
+                        <button class="edit-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Bearbeiten">✏️</button>
+                        <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all" title="Löschen">🗑️</button>
+                    </div>
+
+                    <div class="npc-details ${isExpanded ? 'block' : 'hidden'} pt-3 border-t border-forest-800/40 mt-3 space-y-2 text-xs">
+                        ${n.visual ? `<p><strong class="text-[#eacb67]">👁️ Optischer Anker:</strong> <span class="text-gray-200">${n.visual}</span></p>` : ''}
+                        ${n.voice ? `<p><strong class="text-[#eacb67]">🗣️ Stimme:</strong> <span class="text-gray-200">${n.voice}</span></p>` : ''}
+                        ${n.secret ? `
+                            <div class="bg-[#081511] border border-[#1b3d32] rounded-lg p-2.5 mt-2">
+                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">🤫 GEHEIMNIS:</h4>
+                                <p class="text-xs text-gray-300 leading-relaxed">${n.secret}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                card.querySelector('.card-header-click').onclick = () => toggleNpcExpanded(n.id);
+                card.querySelector('.card-summary-click').onclick = () => toggleNpcExpanded(n.id);
+
+                card.querySelector('.move-to-lib-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    n.category = 'library';
+                    saveState();
+                    renderNPCsTab();
+                    showToast(`"${n.name}" zur Bibliothek hinzugefügt!`, 'success');
+                };
+
+                card.querySelector('.duplicate-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const dup = JSON.parse(JSON.stringify(n));
+                    dup.id = 'npc-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    dup.category = 'active';
+                    dup.name = getNextNpcName(n.name, 'active');
+                    state.npcs.splice(index + 1, 0, dup);
+                    saveState();
+                    renderNPCsTab();
+                    showToast(`"${dup.name}" erstellt!`, 'success');
+                };
+
+                card.querySelector('.edit-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    openNpcModalForEdit(n);
+                };
+
+                card.querySelector('.delete-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Möchtest du den NPC "${n.name}" wirklich löschen?`)) {
+                        state.npcs = state.npcs.filter(x => x.id !== n.id);
+                        expandedNpcIds.delete(n.id);
+                        saveState();
+                        renderNPCsTab();
+                        showToast('NPC gelöscht', 'info');
+                    }
+                };
+
+                activeGrid.appendChild(card);
+            }
+
+            // Drag & Drop reordering and moving
+            card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); card.classList.add('dragging'); };
+            card.ondragend = () => { card.classList.remove('dragging'); };
+            card.ondragover = (e) => { e.preventDefault(); };
+            card.ondrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIdx = index;
+                if (!isNaN(fromIdx) && fromIdx !== toIdx) {
+                    const moved = state.npcs.splice(fromIdx, 1)[0];
+                    moved.category = n.category;
+                    state.npcs.splice(toIdx, 0, moved);
+                    saveState();
+                    renderNPCsTab();
                 }
             };
-            grid.appendChild(card);
         });
+    }
+
+    function dropNpcContainer(e, category) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const idxStr = e.dataTransfer.getData('text/plain');
+        if (idxStr !== '') {
+            const fromIdx = parseInt(idxStr);
+            if (!isNaN(fromIdx) && state.npcs[fromIdx]) {
+                const moved = state.npcs.splice(fromIdx, 1)[0];
+                moved.category = category;
+                state.npcs.push(moved);
+                saveState();
+                renderNPCsTab();
+            }
+        }
     }
 
     function openNpcModalForEdit(n = null) {
         document.getElementById('npcModalTitle').textContent = n ? 'NPC bearbeiten' : 'Neuen NPC anlegen';
         document.getElementById('npcIdInput').value = n ? n.id : '';
         document.getElementById('npcNameInput').value = n ? n.name : '';
-        document.getElementById('npcRoleInput').value = n ? (n.role || '') : '';
+        document.getElementById('npcRaceInput').value = n ? (n.rasse || n.race || '') : '';
+        document.getElementById('npcRoleInput').value = n ? (n.beruf || n.role || '') : '';
         document.getElementById('npcLocationInput').value = n ? (n.location || '') : '';
         document.getElementById('npcVisualInput').value = n ? (n.visual || '') : '';
         document.getElementById('npcVoiceInput').value = n ? (n.voice || '') : '';
         document.getElementById('npcGoalInput').value = n ? (n.goal || '') : '';
         document.getElementById('npcSecretInput').value = n ? (n.secret || '') : '';
+        document.getElementById('npcCategorySelect').value = n ? (n.category || 'active') : 'active';
         document.getElementById('npcModal').classList.remove('hidden');
     }
 
@@ -1132,15 +1480,24 @@
     document.getElementById('npcForm').onsubmit = (e) => {
         e.preventDefault();
         const id = document.getElementById('npcIdInput').value;
+        const nameVal = document.getElementById('npcNameInput').value.trim();
+        const raceVal = document.getElementById('npcRaceInput').value.trim();
+        const roleVal = document.getElementById('npcRoleInput').value.trim();
+        const categoryVal = document.getElementById('npcCategorySelect').value;
+
         const npcObj = {
-            id: id || 'npc-'+Date.now(),
-            name: document.getElementById('npcNameInput').value,
-            role: document.getElementById('npcRoleInput').value,
-            location: document.getElementById('npcLocationInput').value,
-            visual: document.getElementById('npcVisualInput').value,
-            voice: document.getElementById('npcVoiceInput').value,
-            goal: document.getElementById('npcGoalInput').value,
-            secret: document.getElementById('npcSecretInput').value
+            id: id || 'npc-' + Date.now(),
+            name: nameVal,
+            rasse: raceVal,
+            race: raceVal, // backwards compatibility
+            beruf: roleVal,
+            role: roleVal, // backwards compatibility
+            location: document.getElementById('npcLocationInput').value.trim(),
+            visual: document.getElementById('npcVisualInput').value.trim(),
+            voice: document.getElementById('npcVoiceInput').value.trim(),
+            goal: document.getElementById('npcGoalInput').value.trim(),
+            secret: document.getElementById('npcSecretInput').value.trim(),
+            category: categoryVal
         };
         if (id) {
             const idx = state.npcs.findIndex(x => x.id === id);
@@ -1154,25 +1511,103 @@
         showToast('NPC gespeichert!', 'success');
     };
 
-    function buildMonsterStatblockHTML(m, isCard = true, cardIndex = 0) {
-        const s = m.stats || {};
-
-        let outlinesHtml = '';
-        if (Array.isArray(m.outlines) && m.outlines.length > 0) {
-            outlinesHtml = `<div class="flex gap-1.5 mb-2">${m.outlines.map(c => `<span class="w-4 h-2 rounded-full inline-block shadow-sm" style="background:${c}"></span>`).join('')}</div>`;
+    // Helper to generate CSS border and shadow based on monster outlines
+    function getMonsterCardBorderStyle(m) {
+        const outlines = Array.isArray(m.outlines) ? m.outlines.filter(Boolean) : [];
+        if (outlines.length === 0) {
+            return {
+                border: m.category === 'library' ? '1px solid #374151' : '1px solid #1f4236',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.25)'
+            };
         }
+        if (outlines.length === 1) {
+            return {
+                border: `3px solid ${outlines[0]}`,
+                boxShadow: `0 0 12px ${outlines[0]}55, 0 4px 16px rgba(0, 0, 0, 0.3)`
+            };
+        }
+        // Multiple colors: concentric rings via border + box-shadow
+        const primary = outlines[0];
+        const rings = outlines.slice(1).map((color, idx) => `0 0 0 ${(idx + 1) * 3}px ${color}`);
+        rings.push(`0 0 14px ${primary}40`);
+        rings.push('0 4px 16px rgba(0, 0, 0, 0.3)');
+        return {
+            border: `3px solid ${primary}`,
+            boxShadow: rings.join(', ')
+        };
+    }
+
+    // Base name extractor (e.g. "Ork 2" -> "Ork", "Goblin (Kopie)" -> "Goblin")
+    function getBaseMonsterName(name) {
+        if (!name) return 'Kreatur';
+        let cleaned = name.replace(/\s*\(Kopie(\s*\d+)?\)$/i, '').trim();
+        const match = cleaned.match(/^(.+?)\s+(\d+)$/);
+        if (match) {
+            return match[1].trim();
+        }
+        return cleaned;
+    }
+
+    // Calculates next ascending name (e.g. "Goblin 2", "Goblin 3") for active monsters
+    function getNextMonsterNameForActive(sourceName) {
+        const baseName = getBaseMonsterName(sourceName);
+        const activeMonsters = state.monsters.filter(x => x.category === 'active');
+        
+        const existingNumbers = [];
+        let hasBaseExact = false;
+        
+        activeMonsters.forEach(m => {
+            const mTrimmed = m.name.trim();
+            const mBase = getBaseMonsterName(mTrimmed);
+            if (mBase.toLowerCase() === baseName.toLowerCase()) {
+                const numMatch = mTrimmed.match(/^.+?\s+(\d+)$/);
+                if (numMatch) {
+                    existingNumbers.push(parseInt(numMatch[1], 10));
+                } else {
+                    hasBaseExact = true;
+                    existingNumbers.push(1);
+                }
+            }
+        });
+
+        // If no active monster has this base name, use baseName as-is
+        if (!hasBaseExact && existingNumbers.length === 0) {
+            return baseName;
+        }
+
+        // Next number is max existing + 1 (at least 2)
+        const maxNum = Math.max(1, ...existingNumbers);
+        const nextNum = Math.max(2, maxNum + 1);
+        return `${baseName} ${nextNum}`;
+    }
+
+    // Track which monsters are expanded in the Monster & Kampf tab
+    const expandedMonsterIds = new Set();
+
+    function toggleMonsterExpanded(id) {
+        if (expandedMonsterIds.has(id)) {
+            expandedMonsterIds.delete(id);
+        } else {
+            expandedMonsterIds.add(id);
+        }
+        renderMonstersTab();
+    }
+
+    // Statblock details (RK, TP, Stats, Traits, Actions, Tactics etc.)
+    function buildMonsterStatblockDetailsHTML(m) {
+        const s = m.stats || {};
 
         const traitsHtml = m.traits && m.traits.length > 0 ? `
             <div class="mt-4">
                 <h4 class="text-xs font-bold text-[#eacb67] tracking-wider uppercase mb-1">MERKMALE:</h4>
                 <div class="space-y-1">
                     ${m.traits.map(t => {
-            const parts = t.split(':');
-            if(parts.length > 1) {
-                return `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${parts[0]}:</strong>${parts.slice(1).join(':')}</p>`;
-            }
-            return `<p class="text-xs text-gray-200">${t}</p>`;
-        }).join('')}
+                        const parts = t.split(':');
+                        if(parts.length > 1) {
+                            return `<p class="text-xs text-gray-200"><strong class="text-[#eacb67] font-semibold">${parts[0]}:</strong>${parts.slice(1).join(':')}</p>`;
+                        }
+                        return `<p class="text-xs text-gray-200">${t}</p>`;
+                    }).join('')}
                 </div>
             </div>` : '';
 
@@ -1206,26 +1641,7 @@
                 <p class="text-xs text-gray-300 leading-relaxed">${m.tactics}</p>
             </div>` : '';
 
-        const buttonsHtml = isCard ? `
-            <div class="flex justify-end items-center gap-2 pt-4 mt-4 border-t border-[#1b3d32]">
-                <button class="add-to-init-btn text-xs px-3 py-1.5 bg-[#23483d] hover:bg-[#34705d] text-[#eacb67] font-semibold rounded-md border border-[#d4af37]/40 flex items-center gap-1 transition-all">+ Initiative</button>
-                <button class="duplicate-btn text-xs px-3 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-gray-300 rounded-md border border-gray-700/60 flex items-center gap-1 transition-all">📋 Duplizieren</button>
-                <button class="edit-btn text-xs px-3 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all">✏️ Bearbeiten</button>
-                <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all">🗑️</button>
-            </div>` : '';
-
         return `
-            ${outlinesHtml}
-            <div class="flex justify-between items-start mb-1">
-                <div>
-                    <h3 class="font-cinzel text-xl font-bold tracking-wide text-[#eacb67] uppercase">${m.name}</h3>
-                    <p class="text-xs text-gray-400">${m.type}</p>
-                </div>
-                <div class="bg-[#213a30] text-[#eacb67] border border-[#385e50] text-xs font-bold px-3 py-1 rounded-md">
-                    ${m.xp ? (m.xp.toString().includes('XP') ? m.xp : m.xp + ' XP') : '0 XP'}
-                </div>
-            </div>
-
             <div class="bg-[#081511] border border-[#1c3c31] rounded-lg p-2.5 my-3 grid grid-cols-4 text-center divide-x divide-[#1c3c31]">
                 <div>
                     <div class="text-[10px] text-gray-400">RK (AC)</div>
@@ -1291,7 +1707,27 @@
             ${bonusActionsHtml}
             ${reactionsHtml}
             ${tacticsHtml}
-            ${buttonsHtml}
+        `;
+    }
+
+    // Function used by Initiative tab (isCard=false) to display complete monster card on right side
+    function buildMonsterStatblockHTML(m, isCard = true, cardIndex = 0) {
+        let outlinesHtml = '';
+        if (!isCard && Array.isArray(m.outlines) && m.outlines.length > 0) {
+            outlinesHtml = `<div class="flex gap-1.5 mb-2">${m.outlines.map(c => `<span class="w-4 h-2 rounded-full inline-block shadow-sm" style="background:${c}"></span>`).join('')}</div>`;
+        }
+        return `
+            ${outlinesHtml}
+            <div class="flex justify-between items-start mb-1">
+                <div>
+                    <h3 class="font-cinzel text-xl font-bold tracking-wide text-[#eacb67] uppercase">${m.name}</h3>
+                    <p class="text-xs text-gray-400">${m.type}</p>
+                </div>
+                <div class="bg-[#213a30] text-[#eacb67] border border-[#385e50] text-xs font-bold px-3 py-1 rounded-md">
+                    ${m.xp ? (m.xp.toString().includes('XP') ? m.xp : m.xp + ' XP') : '0 XP'}
+                </div>
+            </div>
+            ${buildMonsterStatblockDetailsHTML(m)}
         `;
     }
 
@@ -1314,13 +1750,150 @@
 
         state.monsters.forEach((m, index) => {
             const isLib = m.category === 'library';
+            const isExpanded = expandedMonsterIds.has(m.id);
+            const borderStyles = getMonsterCardBorderStyle(m);
+
             const card = document.createElement('div');
-            card.className = `draggable-item rounded-xl p-5 shadow-xl border transition-all ${isLib ? 'bg-[#0b1613]/80 border-gray-800 text-gray-400' : 'bg-[#0e211a] border-[#1f4236] text-gray-100'}`;
+            card.className = `draggable-item rounded-xl p-4 shadow-xl transition-all ${isLib ? 'bg-[#0b1613]/90 text-gray-300' : 'bg-[#0e211a] text-gray-100'}`;
             card.draggable = true;
             card.dataset.index = index;
+            card.style.border = borderStyles.border;
+            card.style.boxShadow = borderStyles.boxShadow;
 
-            card.innerHTML = buildMonsterStatblockHTML(m, true, index);
+            if (isLib) {
+                // Bibliothek (Archiv) Card - Kompakt (Name, Typ, XP), per Klick aufklappbar, + Icon für Übertrag in Aktive
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-2 cursor-pointer card-header-click" title="Klicken, um Statblock ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-cinzel text-lg font-bold tracking-wide text-gray-200 uppercase truncate">${m.name}</h3>
+                                <span class="text-[10px] text-gray-400 bg-forest-950/70 border border-forest-800 px-2 py-0.5 rounded font-sans">${isExpanded ? '▲ Einklappen' : '▼ Details'}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 truncate mt-0.5">${m.type || 'Kreatur'}</p>
+                        </div>
+                        <div class="bg-[#1b2f27] text-gray-300 border border-gray-700 text-xs font-bold px-2.5 py-1 rounded-md flex-shrink-0">
+                            ${m.xp ? (m.xp.toString().includes('XP') ? m.xp : m.xp + ' XP') : '0 XP'}
+                        </div>
+                    </div>
 
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-forest-800/60">
+                        <button class="add-to-active-btn text-xs px-3 py-1.5 bg-[#d4af37] hover:bg-[#eacb67] text-[#0b1814] font-bold rounded-md flex items-center gap-1 transition-all shadow-md" title="Als eigenständige Kreatur zu Aktive Monster hinzufügen">➕ Zu Aktiv</button>
+                        <button class="edit-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Bearbeiten">✏️ Bearbeiten</button>
+                        <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all" title="Löschen">🗑️</button>
+                    </div>
+
+                    <div class="monster-details ${isExpanded ? 'block' : 'hidden'} pt-2 border-t border-forest-800/40 mt-3">
+                        ${buildMonsterStatblockDetailsHTML(m)}
+                    </div>
+                `;
+
+                card.querySelector('.card-header-click').onclick = () => toggleMonsterExpanded(m.id);
+
+                card.querySelector('.add-to-active-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const newMonster = JSON.parse(JSON.stringify(m));
+                    newMonster.id = 'm-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    newMonster.category = 'active';
+                    newMonster.name = getNextMonsterNameForActive(m.name);
+                    state.monsters.unshift(newMonster);
+                    saveState();
+                    renderMonstersTab();
+                    showToast(`"${newMonster.name}" zu aktiven Monstern hinzugefügt!`, 'success');
+                };
+
+                card.querySelector('.edit-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    openMonsterModalForEdit(m);
+                };
+
+                card.querySelector('.delete-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Möchtest du das Monster "${m.name}" wirklich aus der Bibliothek löschen?`)) {
+                        state.monsters = state.monsters.filter(x => x.id !== m.id);
+                        expandedMonsterIds.delete(m.id);
+                        saveState();
+                        renderMonstersTab();
+                        showToast('Monster aus Bibliothek gelöscht', 'info');
+                    }
+                };
+
+                libraryGrid.appendChild(card);
+            } else {
+                // Aktive Monster Card - Kompakt (nur Name, Kreaturtyp, XP, farbiger Rahmen), Button für Bibliothek
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-2 cursor-pointer card-header-click" title="Klicken, um Statblock ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-cinzel text-lg font-bold tracking-wide text-[#eacb67] uppercase truncate">${m.name}</h3>
+                                <span class="text-[10px] text-[#eacb67] bg-[#1a382d] border border-gold-500/30 px-2 py-0.5 rounded font-sans">${isExpanded ? '▲ Einklappen' : '▼ Details'}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 truncate mt-0.5">${m.type || 'Kreatur'}</p>
+                        </div>
+                        <div class="bg-[#213a30] text-[#eacb67] border border-[#385e50] text-xs font-bold px-2.5 py-1 rounded-md flex-shrink-0">
+                            ${m.xp ? (m.xp.toString().includes('XP') ? m.xp : m.xp + ' XP') : '0 XP'}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-[#1b3d32]/60">
+                        <button class="add-to-init-btn text-xs px-2.5 py-1.5 bg-[#23483d] hover:bg-[#34705d] text-[#eacb67] font-semibold rounded-md border border-[#d4af37]/40 flex items-center gap-1 transition-all" title="Zur Initiative hinzufügen (würfelt 1W20 + Init)">⚔️ + Init</button>
+                        <button class="move-to-lib-btn text-xs px-2.5 py-1.5 bg-[#18362b] hover:bg-[#254d3e] text-[#97c7b2] hover:text-[#eacb67] font-medium rounded-md border border-forest-700/60 flex items-center gap-1 transition-all" title="In Bibliothek (Archiv) verschieben">📚 Zur Bibliothek</button>
+                        <button class="duplicate-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-gray-300 rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Duplizieren mit aufsteigender Nummer">📋 Kopie</button>
+                        <button class="edit-btn text-xs px-2.5 py-1.5 bg-[#132822] hover:bg-[#1f3f36] text-[#eacb67] rounded-md border border-gray-700/60 flex items-center gap-1 transition-all" title="Bearbeiten">✏️</button>
+                        <button class="delete-btn text-xs p-1.5 text-gray-400 hover:text-red-400 transition-all" title="Löschen">🗑️</button>
+                    </div>
+
+                    <div class="monster-details ${isExpanded ? 'block' : 'hidden'} pt-2 border-t border-forest-800/40 mt-3">
+                        ${buildMonsterStatblockDetailsHTML(m)}
+                    </div>
+                `;
+
+                card.querySelector('.card-header-click').onclick = () => toggleMonsterExpanded(m.id);
+
+                card.querySelector('.add-to-init-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    addCombatantFromMonster(m);
+                };
+
+                card.querySelector('.move-to-lib-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    m.category = 'library';
+                    saveState();
+                    renderMonstersTab();
+                    showToast(`"${m.name}" zur Bibliothek hinzugefügt!`, 'success');
+                };
+
+                card.querySelector('.duplicate-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    const dup = JSON.parse(JSON.stringify(m));
+                    dup.id = 'm-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    dup.category = 'active';
+                    dup.name = getNextMonsterNameForActive(m.name);
+                    state.monsters.splice(index + 1, 0, dup);
+                    saveState();
+                    renderMonstersTab();
+                    showToast(`"${dup.name}" erstellt!`, 'success');
+                };
+
+                card.querySelector('.edit-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    openMonsterModalForEdit(m);
+                };
+
+                card.querySelector('.delete-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Möchtest du das Monster "${m.name}" wirklich löschen?`)) {
+                        state.monsters = state.monsters.filter(x => x.id !== m.id);
+                        expandedMonsterIds.delete(m.id);
+                        saveState();
+                        renderMonstersTab();
+                        showToast('Monster gelöscht', 'info');
+                    }
+                };
+
+                activeGrid.appendChild(card);
+            }
+
+            // Drag & Drop
             card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); card.classList.add('dragging'); };
             card.ondragend = () => { card.classList.remove('dragging'); };
             card.ondragover = (e) => { e.preventDefault(); };
@@ -1336,28 +1909,6 @@
                     saveState(); renderMonstersTab();
                 }
             };
-
-            card.querySelector('.add-to-init-btn').onclick = () => {
-                addCombatantFromMonster(m);
-                showToast(`${m.name} zur Initiative hinzugefügt!`, 'success');
-            };
-            card.querySelector('.duplicate-btn').onclick = () => {
-                const dup = JSON.parse(JSON.stringify(m));
-                dup.id = 'm-' + Date.now();
-                dup.name = dup.name + ' (Kopie)';
-                state.monsters.splice(index + 1, 0, dup);
-                saveState(); renderMonstersTab(); showToast('Kreatur dupliziert!', 'success');
-            };
-            card.querySelector('.edit-btn').onclick = () => openMonsterModalForEdit(m);
-            card.querySelector('.delete-btn').onclick = () => {
-                if (confirm(`Möchtest du das Monster "${m.name}" wirklich löschen?`)) {
-                    state.monsters = state.monsters.filter(x => x.id !== m.id);
-                    saveState(); renderMonstersTab(); showToast('Monster gelöscht', 'info');
-                }
-            };
-
-            if (isLib) libraryGrid.appendChild(card);
-            else activeGrid.appendChild(card);
         });
     }
 
@@ -1609,7 +2160,19 @@
     }
 
     function addCombatantFromMonster(m) {
-        addCombatant(m.name, parseInt(m.init) || 10, m.hp, m);
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        let mod = 0;
+        if (m.init !== undefined && m.init !== null) {
+            const parsed = parseInt(String(m.init).trim(), 10);
+            if (!isNaN(parsed)) {
+                mod = parsed;
+            }
+        }
+        const totalInit = d20 + mod;
+        const modDisplay = mod >= 0 ? `+${mod}` : `${mod}`;
+        
+        addCombatant(m.name, totalInit, m.hp, m);
+        showToast(`🎲 ${m.name}: 1W20 (${d20}) ${modDisplay} = ${totalInit} Initiative!`, 'success');
     }
 
     function removeCombatant(id, e) { if(e) e.stopPropagation(); state.combatants = state.combatants.filter(c => c.id !== id); saveState(); renderInitiativeTab(); }
