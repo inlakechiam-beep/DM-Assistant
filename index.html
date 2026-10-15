@@ -1268,7 +1268,7 @@
                             </div>
                             <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
                                 <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-300 border border-forest-800 font-medium">👤 ${rasseText}</span>
-                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-400 border border-forest-800">💼 ${berufText}</span>
+                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-400 border border-forest-800">${berufText}</span>
                             </div>
                         </div>
                         <div class="bg-[#1b2f27] text-gray-400 border border-gray-700 text-[10px] font-bold px-2 py-1 rounded flex-shrink-0">
@@ -1277,8 +1277,8 @@
                     </div>
 
                     <div class="mt-2.5 space-y-1 text-xs cursor-pointer card-summary-click" title="Klicken, um Details ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
-                        <p class="text-gray-300"><strong class="text-[#eacb67]">📍 Ort:</strong> ${n.location || '—'}</p>
-                        <p class="text-gray-300"><strong class="text-[#eacb67]">🎯 Ziel:</strong> ${n.goal || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">Ort:</strong> ${n.location || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">Ziel:</strong> ${n.goal || '—'}</p>
                     </div>
 
                     <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-forest-800/60">
@@ -1289,11 +1289,11 @@
                     </div>
 
                     <div class="npc-details ${isExpanded ? 'block' : 'hidden'} pt-3 border-t border-forest-800/40 mt-3 space-y-2 text-xs">
-                        ${n.visual ? `<p><strong class="text-[#eacb67]">👁️ Optischer Anker:</strong> <span class="text-gray-300">${n.visual}</span></p>` : ''}
-                        ${n.voice ? `<p><strong class="text-[#eacb67]">🗣️ Stimme:</strong> <span class="text-gray-300">${n.voice}</span></p>` : ''}
+                        ${n.visual ? `<p><strong class="text-[#eacb67]">Optischer Anker:</strong> <span class="text-gray-300">${n.visual}</span></p>` : ''}
+                        ${n.voice ? `<p><strong class="text-[#eacb67]">Stimme:</strong> <span class="text-gray-300">${n.voice}</span></p>` : ''}
                         ${n.secret ? `
                             <div class="bg-[#081511] border border-[#1b3d32] rounded-lg p-2.5 mt-2">
-                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">🤫 GEHEIMNIS:</h4>
+                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">GEHEIMNIS:</h4>
                                 <p class="text-xs text-gray-300 leading-relaxed">${n.secret}</p>
                             </div>
                         ` : ''}
@@ -1351,14 +1351,14 @@
                             </div>
                             <div class="flex items-center gap-1.5 mt-1.5 flex-wrap text-xs">
                                 <span class="px-2 py-0.5 rounded bg-gold-500/15 text-gold-300 font-semibold border border-gold-500/30">👤 ${rasseText}</span>
-                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-200 border border-forest-800">💼 ${berufText}</span>
+                                <span class="px-2 py-0.5 rounded bg-forest-950 text-gray-200 border border-forest-800">${berufText}</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-2.5 space-y-1 text-xs cursor-pointer card-summary-click" title="Klicken, um Details ${isExpanded ? 'einzuklappen' : 'anzuzeigen'}">
-                        <p class="text-gray-300"><strong class="text-[#eacb67]">📍 Ort:</strong> ${n.location || '—'}</p>
-                        <p class="text-gray-300"><strong class="text-[#eacb67]">🎯 Ziel:</strong> ${n.goal || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">Ort:</strong> ${n.location || '—'}</p>
+                        <p class="text-gray-300"><strong class="text-[#eacb67]">Ziel:</strong> ${n.goal || '—'}</p>
                     </div>
 
                     <div class="flex flex-wrap items-center justify-end gap-1.5 pt-3 mt-3 border-t border-[#1b3d32]/60">
@@ -1369,11 +1369,11 @@
                     </div>
 
                     <div class="npc-details ${isExpanded ? 'block' : 'hidden'} pt-3 border-t border-forest-800/40 mt-3 space-y-2 text-xs">
-                        ${n.visual ? `<p><strong class="text-[#eacb67]">👁️ Optischer Anker:</strong> <span class="text-gray-200">${n.visual}</span></p>` : ''}
-                        ${n.voice ? `<p><strong class="text-[#eacb67]">🗣️ Stimme:</strong> <span class="text-gray-200">${n.voice}</span></p>` : ''}
+                        ${n.visual ? `<p><strong class="text-[#eacb67]">Optischer Anker:</strong> <span class="text-gray-200">${n.visual}</span></p>` : ''}
+                        ${n.voice ? `<p><strong class="text-[#eacb67]">Stimme:</strong> <span class="text-gray-200">${n.voice}</span></p>` : ''}
                         ${n.secret ? `
                             <div class="bg-[#081511] border border-[#1b3d32] rounded-lg p-2.5 mt-2">
-                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">🤫 GEHEIMNIS:</h4>
+                                <h4 class="text-xs font-bold text-red-400 flex items-center gap-1 mb-0.5">GEHEIMNIS:</h4>
                                 <p class="text-xs text-gray-300 leading-relaxed">${n.secret}</p>
                             </div>
                         ` : ''}
