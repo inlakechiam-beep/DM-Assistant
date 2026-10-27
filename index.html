@@ -203,6 +203,96 @@
         .conditions-section { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 220px; }
         .conditions-header { font-size: 0.62rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.8px; /* text-transform: uppercase removed for lowercase support */ }
         .conditions-grid { display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
+        
+        /* ==========================================================================
+           INITIATIVE TRACKER: Vorteil & Nachteil Buttons (ER/SIE & ICH)
+           ========================================================================== */
+        .combatant-middle-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-right: 1px solid var(--border-subtle);
+            padding-right: 14px;
+        }
+        .combatant-main-row {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .combatant-middle-section .hp-section {
+            border-right: none !important;
+            padding-right: 0 !important;
+        }
+
+        .adv-disadv-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 14px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+
+        .adv-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .adv-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            user-select: none;
+        }
+        .vorteil-label {
+            color: #4ade80; /* emerald-400 */
+        }
+        .nachteil-label {
+            color: #f87171; /* red-400 */
+        }
+
+        /* Inaktive / Deaktivierte Buttons: unauffällig im Dark Fantasy Design, Schrift immer gut lesbar */
+        .adv-btn {
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: var(--bg-input);
+            color: #94a3b8; /* Klar lesbares Slate */
+        }
+
+        .adv-btn:hover {
+            border-color: #4a685c;
+            color: #f1f5f9;
+        }
+
+        /* Vorteil Aktiv: Leuchtender, glühender Smaragd-Effekt */
+        .adv-btn.adv-vorteil.is-active {
+            background: rgba(34, 197, 94, 0.25) !important;
+            border-color: #22c55e !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px 2px rgba(34, 197, 94, 0.7), inset 0 0 8px rgba(34, 197, 94, 0.3) !important;
+            text-shadow: 0 0 5px rgba(34, 197, 94, 0.9);
+            font-weight: 800;
+        }
+
+        /* Nachteil Aktiv: Leuchtender, glühender Rot-Effekt */
+        .adv-btn.adv-nachteil.is-active {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 14px 2px rgba(239, 68, 68, 0.7), inset 0 0 8px rgba(239, 68, 68, 0.3) !important;
+            text-shadow: 0 0 5px rgba(239, 68, 68, 0.9);
+            font-weight: 800;
+        }
+
         .condition-btn {
             background: var(--bg-input); border: 1px solid var(--border-subtle); color: #97c7b2;
             padding: 3px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 500; cursor: pointer; transition: all 0.15s ease; user-select: none; white-space: nowrap;
@@ -321,6 +411,20 @@
             animation: unfold 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     
+        
+        /* ==========================================================================
+           ORTE & WELTEN: Kartentitel (h4 Cinzel)
+           Font-Weight: 400 (normal) statt 700 (bold)
+           Font-Size: 1.4rem (22.4px) statt 0.875rem (14px)
+           ========================================================================== */
+        .origami-card h4.font-cinzel,
+        .origami-card h4 {
+            font-family: 'IM Fell English', Georgia, serif !important;
+            font-weight: 400 !important;
+            font-size: 1.4rem !important;
+            line-height: 1.3 !important;
+        }
+
         /* IM Fell English for authentic fantasy typography with true lower & upper case */
         .font-cinzel, .font-fell {
             font-family: 'IM Fell English', Georgia, serif !important;
@@ -1262,7 +1366,9 @@
 
     function loadState() {
         try {
-            let saved = localStorage.getItem('sylvanus_codex_data_v19');
+            let saved = localStorage.getItem('sylvanus_codex_data_v21');
+            if (!saved) saved = localStorage.getItem('sylvanus_codex_data_v20');
+            if (!saved) saved = localStorage.getItem('sylvanus_codex_data_v19');
             if (!saved) saved = localStorage.getItem('sylvanus_codex_data_v18');
             if (!saved) {
                 saved = localStorage.getItem('sylvanus_codex_data_v17');
@@ -1291,6 +1397,8 @@
     function saveState() {
         try {
             const serialized = JSON.stringify(state);
+            localStorage.setItem('sylvanus_codex_data_v21', serialized);
+            localStorage.setItem('sylvanus_codex_data_v20', serialized);
             localStorage.setItem('sylvanus_codex_data_v19', serialized);
             localStorage.setItem('sylvanus_codex_data_v18', serialized);
             localStorage.setItem('sylvanus_codex_data_v17', serialized);
@@ -2793,6 +2901,16 @@
         }
     }
     function updateName(id, val) { const c = state.combatants.find(x => x.id === id); if(c){ c.name = val; saveState(); } }
+    
+    function toggleCombatantAdv(id, key) {
+        const c = state.combatants.find(x => x.id === id);
+        if (c) {
+            c[key] = !c[key];
+            saveState();
+            renderInitiativeTab();
+        }
+    }
+
     function resetTracker() { if(confirm('Alles löschen?')){ state.combatants = []; state.activeId = null; saveState(); renderInitiativeTab(); } }
 
     function renderInitiativeTab() {
@@ -2833,25 +2951,45 @@
 
             card.innerHTML = `
                 <div class="init-badge" onclick="event.stopPropagation()"><label>INIT</label><input type="number" value="${c.init}" oninput="handleInitInput('${c.id}', this.value)" onchange="finalizeInitChange()" /></div>
-                <div class="character-square-container" onclick="event.stopPropagation()">
-                    <div class="character-square ${!c.img?'empty':''}">${c.img?`<img src="${c.img}"/>`:'<span>👤</span>'}<div class="upload-hint">📷 Bild</div><input type="file" accept="image/*" onchange="handleImageUpload('${c.id}', this)" onclick="event.stopPropagation()"/></div>
-                    <input type="text" class="name-input" value="${c.name}" oninput="updateName('${c.id}', this.value)" onclick="event.stopPropagation()"/>
-                </div>
-                <div class="hp-section" onclick="event.stopPropagation()">
-                    <div class="hp-stats">
-                        <span class="hp-display">❤️ <input type="number" class="hp-number-input" value="${c.hp}" oninput="handleCurrentHpInput('${c.id}', this.value)"/> / <input type="number" class="max-hp-input" value="${c.maxHp}" onchange="commitMaxHp('${c.id}', this.value)" onkeydown="if(event.key==='Enter') this.blur()"/>${c.tempHp > 0 ? `<span class="text-purple-400 font-bold text-xs ml-1" title="Temporäre TP">(+${c.tempHp} Temp)</span>` : ''}</span>
-                        <button class="btn-full-hp" onclick="resetToFullHp('${c.id}')">Full</button>
-                    </div>
-                    <div class="hp-inputs">
-                        <input type="number" id="val-${c.id}" placeholder="Wert" min="1"/>
-                        <div class="hp-buttons">
-                            <button onclick="applyDamage('${c.id}')" class="btn-dmg">- Dmg</button>
-                            <button onclick="applyHeal('${c.id}')" class="btn-heal">+ Heal</button>
-                            <button onclick="addTempHp('${c.id}')" class="btn-temp">+ Temp</button>
+                
+                <div class="combatant-middle-section" onclick="event.stopPropagation()">
+                    <div class="combatant-main-row">
+                        <div class="character-square-container" onclick="event.stopPropagation()">
+                            <div class="character-square ${!c.img?'empty':''}">${c.img?`<img src="${c.img}"/>`:'<span>👤</span>'}<div class="upload-hint">📷 Bild</div><input type="file" accept="image/*" onchange="handleImageUpload('${c.id}', this)" onclick="event.stopPropagation()"/></div>
+                            <input type="text" class="name-input" value="${c.name}" oninput="updateName('${c.id}', this.value)" onclick="event.stopPropagation()"/>
+                        </div>
+                        <div class="hp-section" onclick="event.stopPropagation()">
+                            <div class="hp-stats">
+                                <span class="hp-display">❤️ <input type="number" class="hp-number-input" value="${c.hp}" oninput="handleCurrentHpInput('${c.id}', this.value)"/> / <input type="number" class="max-hp-input" value="${c.maxHp}" onchange="commitMaxHp('${c.id}', this.value)" onkeydown="if(event.key==='Enter') this.blur()"/>${c.tempHp > 0 ? `<span class="text-purple-400 font-bold text-xs ml-1" title="Temporäre TP">(+${c.tempHp} Temp)</span>` : ''}</span>
+                                <button class="btn-full-hp" onclick="resetToFullHp('${c.id}')">Full</button>
+                            </div>
+                            <div class="hp-inputs">
+                                <input type="number" id="val-${c.id}" placeholder="Wert" min="1"/>
+                                <div class="hp-buttons">
+                                    <button onclick="applyDamage('${c.id}')" class="btn-dmg">- Dmg</button>
+                                    <button onclick="applyHeal('${c.id}')" class="btn-heal">+ Heal</button>
+                                    <button onclick="addTempHp('${c.id}')" class="btn-temp">+ Temp</button>
+                                </div>
+                            </div>
+                            <div class="history-container"><div class="history-header">VERLAUF</div><div class="history-box">${c.history.map(h=>`<div class="history-entry">${h}</div>`).join('')}</div></div>
                         </div>
                     </div>
-                    <div class="history-container"><div class="history-header">VERLAUF</div><div class="history-box">${c.history.map(h=>`<div class="history-entry">${h}</div>`).join('')}</div></div>
+
+                    <!-- Vorteil & Nachteil (ER/SIE & ICH) Buttons -->
+                    <div class="adv-disadv-container" onclick="event.stopPropagation()">
+                        <div class="adv-group vorteil-group">
+                            <span class="adv-label vorteil-label">Vorteil:</span>
+                            <button type="button" class="adv-btn adv-vorteil ${c.v_ersie ? 'is-active' : ''}" onclick="toggleCombatantAdv('${c.id}', 'v_ersie')">ER/SIE</button>
+                            <button type="button" class="adv-btn adv-vorteil ${c.v_ich ? 'is-active' : ''}" onclick="toggleCombatantAdv('${c.id}', 'v_ich')">ICH</button>
+                        </div>
+                        <div class="adv-group nachteil-group">
+                            <span class="adv-label nachteil-label">Nachteil:</span>
+                            <button type="button" class="adv-btn adv-nachteil ${c.n_ersie ? 'is-active' : ''}" onclick="toggleCombatantAdv('${c.id}', 'n_ersie')">ER/SIE</button>
+                            <button type="button" class="adv-btn adv-nachteil ${c.n_ich ? 'is-active' : ''}" onclick="toggleCombatantAdv('${c.id}', 'n_ich')">ICH</button>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="conditions-section" onclick="event.stopPropagation()"><div class="conditions-header">Zustände</div><div class="conditions-grid">${conditionsHtml}</div></div>
                 <div class="card-actions"><button onclick="removeCombatant('${c.id}', event)">✕</button></div>
             `;
@@ -2915,7 +3053,6 @@
 
     function setOrteModalType(type) {
         currentOrteModalType = type;
-        document.getElementById('locationModalTargetId').value = type;
 
         // Button Highlights
         ['ort', 'raum', 'person', 'notiz'].forEach(t => {
@@ -3156,7 +3293,7 @@
                                     <span class="badge-type ${cfg.badgeColor} text-[10px]"><i class="fa-solid ${cfg.icon} mr-1"></i> ${cfg.title}</span>
                                     ${node.profession ? `<span class="text-[10px] bg-amber-950/40 text-amber-900 border border-amber-600/30 font-bold px-2 py-0.5 rounded-full">${escapeHTML(node.profession)}</span>` : ''}
                                 </div>
-                                <h4 class="font-cinzel font-bold ${isNote ? 'text-base text-amber-950' : 'text-sm text-gray-900'} break-words">${escapeHTML(node.name)}</h4>
+                                <h4 class="font-cinzel font-normal text-[1.4rem] leading-snug ${isNote ? 'text-amber-950' : 'text-gray-900'} break-words">${escapeHTML(node.name)}</h4>
                             </div>
                             <div class="flex items-center space-x-1 shrink-0" onclick="event.stopPropagation()">
                                 <button onclick="openOrteEditModal('${node.id}')" title="Bearbeiten" class="p-1 text-amber-900 hover:bg-amber-900/20 rounded transition">
@@ -3263,7 +3400,47 @@
         }
     }
 
+    function selectAndExpandPathToOrteNode(targetId) {
+        // Alle geöffneten Zustände im Baum zurücksetzen (collapsen)
+        traverseOrteTree(state.locations, node => node.expanded = false);
+
+        // Den Pfad vom Root-Element zum ausgewählten Node finden
+        const path = [];
+        function findPath(nodes, id) {
+            for (let n of nodes) {
+                path.push(n);
+                if (n.id === id) return true;
+                if (n.children && n.children.length > 0) {
+                    if (findPath(n.children, id)) return true;
+                }
+                path.pop();
+            }
+            return false;
+        }
+
+        findPath(state.locations, targetId);
+
+        // Alle Nodes entlang des Pfades expandieren
+        path.forEach(n => {
+            n.expanded = true;
+        });
+
+        // Suchfeld leeren und Suche zurücksetzen
+        orteSearchQuery = '';
+        const searchInput = document.getElementById('orteSearchInput');
+        if (searchInput) searchInput.value = '';
+
+        saveState();
+        renderOrteTree();
+    }
+
     function toggleOrteNodeExpansion(targetNode, currentLevelNodes) {
+        // Falls eine Suche aktiv ist: Klick auf Karte setzt die Suche zurück und öffnet den Pfad
+        if (orteSearchQuery !== '') {
+            selectAndExpandPathToOrteNode(targetNode.id);
+            return;
+        }
+
         const willExpand = !targetNode.expanded;
         if (willExpand) {
             currentLevelNodes.forEach(n => {
@@ -3338,7 +3515,7 @@
     function openOrteAddModal(type = 'ort', parentId = null) {
         document.getElementById('locationModalActionType').value = 'add';
         document.getElementById('locationModalParentId').value = parentId || '';
-        document.getElementById('locationModalTargetId').value = type;
+        document.getElementById('locationModalTargetId').value = '';
 
         setOrteModalType(type);
 
